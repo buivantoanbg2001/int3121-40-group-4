@@ -1,6 +1,6 @@
-import 'package:app/screens/chat_screen.dart';
-import 'package:app/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'screens/welcome/welcome_screen.dart';
+import 'utils/colors.dart';
 
 void main() {
   runApp(const Convershark());
@@ -17,7 +17,7 @@ class Convershark extends StatelessWidget {
       theme: ThemeData(
         primaryColor: kPrimaryColor,
       ),
-      home: const ChatScreen(),
+      home: const WelcomeScreen(),
     );
   }
 }
