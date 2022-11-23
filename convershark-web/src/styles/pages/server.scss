@@ -1,0 +1,33 @@
+.server-container {
+  height: 100%;
+
+  .channel-list-container {
+    width: 240px;
+    height: 100%;
+    background-color: $channel-background-color;
+
+    .channel-header {
+      margin-bottom: 16px;
+    }
+
+    .server-name {
+      position: absolute;
+      width: 100%;
+      text-overflow: ellipsis;
+      padding: 8px 16px;
+      color: $white-color;
+      text-shadow: $server-name-shadow;
+    }
+
+    .banner-profile {
+      height: 136px;
+      width: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .channel-content-container {
+    flex: 1;
+    height: 100%;
+  }
+}
