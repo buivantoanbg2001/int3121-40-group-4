@@ -28,7 +28,6 @@ import { ShortUserInfo, User } from 'src/schemas/user.schema';
 import { AuthUserDto } from './dto/auth-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import console from 'console';
 
 @ApiTags('users')
 @Controller()
@@ -51,13 +50,12 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt')) // need to protect
   @Get('users/me')
-  async me(@Req() request: Request) {
-    // console.log(JSON.stringify(Object.keys(request)));           // print all properties of request
-    // return "My Detail Informations";                            // where is it come from?
+  async me(@Req() request) {
     // get returned email from field "user" of Express
-    const email = request.user.toString();
+    const { email } = request.user;
     const user = await this.usersService.findUserByEmail(email);
-    return user;
+    const { hashedPassword, ...userWithoutPassWord } = user;
+    return userWithoutPassWord;
   }
 
   @ApiOkResponse({

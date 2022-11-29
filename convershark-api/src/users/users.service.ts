@@ -66,7 +66,9 @@ export class UsersService {
   }
 
   async login(authUserDto: AuthUserDto): Promise<Object> {
-    const user = await this.userModel.findOne({ email: authUserDto.email });
+    const user = await this.userModel
+      .findOne({ email: authUserDto.email })
+      .lean();
 
     if (!user) {
       throw new ForbiddenException('User with this email does not exist');
@@ -104,6 +106,7 @@ export class UsersService {
   async findAll(name?: string): Promise<User[]> {
     const users = await this.userModel
       .find()
+      .lean()
       .populate('friends', ['_uid', 'name', 'avatar'])
       .exec();
 
@@ -114,7 +117,7 @@ export class UsersService {
   }
 
   async findUserByObjID(id: string): Promise<ShortUserInfo> {
-    const user = await this.userModel.findOne({ _id: id }).exec();
+    const user = await this.userModel.findOne({ _id: id }).lean().exec();
     return {
       _id: user._id,
       _uid: user._uid,
@@ -127,13 +130,14 @@ export class UsersService {
   }
 
   async findUserByNameID(uid: string): Promise<User> {
-    const user = await this.userModel.findOne({ uid: uid }).exec();
+    const user = await this.userModel.findOne({ uid: uid }).lean().exec();
     return user;
   }
 
   async findUserByEmail(email: string): Promise<User> {
     const user = await this.userModel
       .findOne({ email: email })
+      .lean()
       .populate('friends', ['_id', '_uid', 'avatar', 'wallpaper', 'bio'])
       .populate('servers')
       .exec();
@@ -142,7 +146,7 @@ export class UsersService {
   }
 
   async update(_email: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userModel.findOne({ email: _email }).exec();
+    const user = await this.userModel.findOne({ email: _email }).lean().exec();
 
     // if name changed, must change _uid
     if (updateUserDto.name) {

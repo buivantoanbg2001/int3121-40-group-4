@@ -25,6 +25,7 @@ export class MessagesService {
   async findAll() {
     const messages = await this.messageModel
       .find()
+      .lean()
       .populate('user_id', ['_uid', 'name', 'avatar'])
       .populate('reply_mes_id', ['_id', 'content'])
       .exec();
