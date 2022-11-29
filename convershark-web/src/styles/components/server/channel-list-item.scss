@@ -1,0 +1,39 @@
+.channel-list-item-container {
+  width: 100%;
+  display: flex;
+  margin: 4px 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  flex-wrap: nowrap;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: $channel-list-item-background-hover-color;
+  }
+
+  &.channel-list-item-container-selected {
+    background-color: $channel-list-item-background-selected-color;
+
+    .channel-icon,
+    .channel-name-content {
+      color: $white-color;
+    }
+  }
+
+  .channel-icon {
+    margin: 0 8px -7px 0;
+    transition: all 0.3s ease;
+  }
+
+  .channel-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    .channel-name-content {
+      transition: all 0.3s ease;
+    }
+  }
+}

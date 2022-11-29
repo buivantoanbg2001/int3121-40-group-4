@@ -1,0 +1,57 @@
+.channel-detail-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-wrap: nowrap;
+  cursor: default;
+
+  .channel-header {
+    padding: 12px 16px;
+    border-bottom: $border-solid;
+
+    .channel-icon {
+      margin: 0 8px -7px 0;
+    }
+
+    .channel-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .message-container {
+    padding: 8px 16px;
+    flex: 1;
+    overflow-y: auto;
+
+    .message-wrapper {
+      display: flex;
+      flex-direction: column-reverse;
+
+      .date-divider {
+        .ant-divider-inner-text {
+          font-size: 12px;
+          color: $secondary-text-color;
+          padding: 0 0.5em;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  .chat-box-container {
+    padding: 0 16px 24px;
+
+    .chat-input {
+      background-color: $chat-input-background-color;
+      height: 42px;
+      border-radius: 8px;
+
+      .send-icon {
+        color: $icon-color;
+      }
+    }
+  }
+}

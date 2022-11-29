@@ -1,0 +1,51 @@
+// layout
+.layout-container {
+  height: 100vh;
+
+  .layout-content-container {
+    height: 100vh;
+
+    // sever sider
+    #layout-sever-sider {
+      height: 100%;
+      overflow: hidden scroll;
+      background: transparent;
+      z-index: 10;
+      flex: 0 0 72px !important;
+      max-width: 72px !important;
+      min-width: 72px !important;
+      width: 72px !important;
+      background-color: $server-menu-background-color;
+
+      /* Hide scrollbar for IE, Edge and Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+      scrollbar-width: none; /* Firefox */
+
+      /* Hide scrollbar for Chrome, Safari and Opera */
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .app-logo {
+        height: 72px;
+        width: 72px;
+        padding: 8px;
+
+        img {
+          padding: 4px;
+          height: 100%;
+          width: 100%;
+          object-fit: contain;
+          background-color: $background-color;
+          border-radius: 25%;
+        }
+      }
+    }
+
+    // content
+    #layout-content {
+      width: calc(100% + 72px);
+      background-color: $background-color;
+    }
+  }
+}

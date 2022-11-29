@@ -1,0 +1,18 @@
+.message-item-container {
+  margin: 8px 0 !important;
+  display: flex;
+
+  .avatar {
+    margin-top: 4px;
+  }
+
+  .content-container {
+    flex: 1;
+    margin: 0 0 0 12px;
+
+    .created-at {
+      font-size: 12px;
+      margin-left: 8px;
+    }
+  }
+}

@@ -1,0 +1,39 @@
+@import 'antd/dist/antd.min.css';
+
+.ant-layout {
+  background-color: $background-color !important;
+}
+
+.ant-menu {
+  height: calc(100% - 72px) !important;
+  background-color: $server-menu-background-color;
+}
+
+.ant-menu-item {
+  height: 48px !important;
+  width: 48px !important;
+  padding: 0 !important;
+  margin: 4px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50%;
+}
+
+.ant-menu-item::after {
+  border-right: unset !important;
+}
+
+.ant-menu-title-content {
+  display: none !important;
+}
+
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+  background-color: $menu-item-background-color !important;
+  border-radius: 50%;
+}
+
+.ant-divider {
+  margin: 8px 0 !important;
+  border-top-color: #00000026 !important;
+}

@@ -5,14 +5,14 @@ export class CreateServerDto {
   name: string;
 
   @ApiProperty({ required: true })
-  host_id: string;
+  hostId: string;
 
   @ApiProperty({ required: false })
   members: string[] = [];
 
   @ApiProperty({ required: false })
-  chat_channels: string[] = [];
+  chatChannels: string[] = [];
 
   @ApiProperty({ required: false })
-  call_channels: string[] = [];
+  callChannels: string[] = [];
 }
