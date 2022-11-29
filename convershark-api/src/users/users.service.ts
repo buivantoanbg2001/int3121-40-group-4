@@ -118,6 +118,7 @@ export class UsersService {
     return {
       _id: user._id,
       _uid: user._uid,
+      name: user.name,
       avatar: user.avatar,
       status: user.status,
       bio: user.bio,
@@ -140,8 +141,8 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userModel.findOne({ _id: id }).exec();
+  async update(_email: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userModel.findOne({ email: _email }).exec();
 
     // if name changed, must change _uid
     if (updateUserDto.name) {
@@ -168,7 +169,7 @@ export class UsersService {
       );
     }
 
-    return this.userModel.updateOne({ _id: id }, updateUserDto);
+    return this.userModel.updateOne({ email: _email }, updateUserDto);
   }
 
   // async remove(id: string) {
