@@ -19,6 +19,7 @@ export class ServersService {
   async findAll() {
     const servers = await this.serverModel
       .find()
+      .lean()
       .populate('members', ['_uid', 'name', 'avatar'])
       .populate('chat_channels')
       .populate('call_channels')
@@ -30,6 +31,7 @@ export class ServersService {
   async findOne(id: string) {
     const server = await this.serverModel
       .findOne({ id })
+      .lean()
       .populate('members', ['_uid', 'name', 'avatar'])
       .populate('chat_channels')
       .populate('call_channels')
@@ -39,7 +41,7 @@ export class ServersService {
   }
 
   async update(id: string, updateServerDto: UpdateServerDto) {
-    const server = this.serverModel.findOne({ _id: id }).exec();
+    const server = this.serverModel.findOne({ _id: id }).lean().exec();
 
     if (updateServerDto.members) {
       updateServerDto.members = updateServerDto.members.concat(
@@ -59,7 +61,9 @@ export class ServersService {
       );
     }
 
-    return this.serverModel.findOneAndUpdate({ _id: id }, updateServerDto);
+    return this.serverModel
+      .findOneAndUpdate({ _id: id }, updateServerDto)
+      .lean();
   }
 
   async remove(id: string) {

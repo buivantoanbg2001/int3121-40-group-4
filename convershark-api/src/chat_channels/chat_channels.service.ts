@@ -7,8 +7,9 @@ import { UpdateChatChannelDto } from './dto/update-chat_channel.dto';
 
 @Injectable()
 export class ChatChannelsService {
-
-  constructor(@InjectModel(ChatChannel.name) private chatChannelModel: Model<ChatChannel>) {}
+  constructor(
+    @InjectModel(ChatChannel.name) private chatChannelModel: Model<ChatChannel>,
+  ) {}
 
   async create(createChatChannelDto: CreateChatChannelDto): Promise<any> {
     const chat_channel = new this.chatChannelModel(createChatChannelDto);
@@ -16,43 +17,53 @@ export class ChatChannelsService {
   }
 
   async findAll(): Promise<any> {
-    const chat_channels = await this.chatChannelModel.find()
-    .populate('members',['_uid', 'name', 'avatar'])
-    .populate('messages')
-    .exec();
+    const chat_channels = await this.chatChannelModel
+      .find()
+      .lean()
+      .populate('members', ['_uid', 'name', 'avatar'])
+      .populate('messages')
+      .exec();
 
     return chat_channels;
   }
 
   async findOne(id: string) {
-    const chat_channel = await this.chatChannelModel.findOne({id})
-    .populate('members',['_uid', 'name', 'avatar'])
-    .populate('messages')
-    .exec();
+    const chat_channel = await this.chatChannelModel
+      .findOne({ id })
+      .lean()
+      .populate('members', ['_uid', 'name', 'avatar'])
+      .populate('messages')
+      .exec();
 
     return chat_channel;
   }
 
   async update(id: string, updateChatChannelDto: UpdateChatChannelDto) {
-    const cc = this.chatChannelModel.findOne({_id: id}).exec();
-    
+    const cc = this.chatChannelModel.findOne({ _id: id }).lean().exec();
+
     // add new member to group chat
     if (updateChatChannelDto.members) {
-      updateChatChannelDto.members = updateChatChannelDto.members.concat((await cc).members);
+      updateChatChannelDto.members = updateChatChannelDto.members.concat(
+        (await cc).members,
+      );
     }
 
     // add new message
     if (updateChatChannelDto.messages) {
-      updateChatChannelDto.messages = updateChatChannelDto.messages.concat((await cc).messages);
+      updateChatChannelDto.messages = updateChatChannelDto.messages.concat(
+        (await cc).messages,
+      );
     }
 
-    return this.chatChannelModel.findOneAndUpdate({_id: id}, updateChatChannelDto);
+    return this.chatChannelModel
+      .findOneAndUpdate({ _id: id }, updateChatChannelDto)
+      .lean();
   }
 
   async remove(id: string) {
-    const chat_channel = await this.chatChannelModel.deleteOne({id}).exec();
+    const chat_channel = await this.chatChannelModel.deleteOne({ id }).exec();
     if (chat_channel.deletedCount === 0) {
-      throw new HttpException("Not Found", 404);
+      throw new HttpException('Not Found', 404);
     }
     return chat_channel;
   }
