@@ -23,7 +23,5 @@ import { ConfigModule } from '@nestjs/config';
     ServersModule,
     NotificationsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

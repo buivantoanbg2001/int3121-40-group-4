@@ -17,6 +17,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
   ApiBadRequestResponse,
+  ApiBody,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -28,11 +29,17 @@ import { ShortUserInfo, User } from 'src/schemas/user.schema';
 import { AuthUserDto } from './dto/auth-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
+import ResponseData from 'src/utils/response-data';
 
-@ApiTags('users')
+@ApiTags('Người dùng')
 @Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Post('login')
+  async login(@Body() authUserDto: AuthUserDto) {
+    return this.usersService.login(authUserDto);
+  }
 
   @ApiOkResponse({
     type: User,
@@ -41,11 +48,6 @@ export class UsersController {
   @Post('register')
   async register(@Body() authUserDto: AuthUserDto) {
     return this.usersService.register(authUserDto);
-  }
-
-  @Post('login')
-  async login(@Body() authUserDto: AuthUserDto) {
-    return this.usersService.login(authUserDto);
   }
 
   @UseGuards(AuthGuard('jwt')) // need to protect
@@ -82,18 +84,23 @@ export class UsersController {
     return await this.usersService.update(email, updateUserDto);
   }
 
-  // @ApiOkResponse({ description: "Successfully updated users's friends list" })
-  // @ApiOperation({
-  //   summary:
-  //     'Thêm id vào danh sách friend của user và thêm user vào danh sách friend của id',
-  //   description:
-  //     'Thêm id vào danh sách friend của user và thêm user vào danh sách friend của id',
-  // })
-  // @UseGuards(AuthGuard('jwt-update-user'))
-  // @Patch('users/friend/:id')
-  // updateFriendList(@Req() request: Request, @Body() updateUserDto: UpdateUserDto) {
+  @ApiOkResponse({
+    description: 'Cập nhật danh sách bạn bè của cả 2 thành công',
+  })
+  @ApiOperation({
+    summary: 'Thêm id vào danh sách bạn bè của user và ngược lại',
+    description:
+      'Thêm id vào danh sách bạn bè của user và thêm user vào danh sách bạn bè của id',
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('users/friends/update-both/:id')
+  async updateFriendList(@Param('id') sender: string, @Req() request) {
+    const { _id: receiver } = request.user;
+    await this.usersService.updateFriendListById(receiver, sender);
+    await this.usersService.updateFriendListById(sender, receiver);
 
-  // }
+    return new ResponseData(true, { message: 'Các bạn đã là bạn bè' }, null);
+  }
 
   // @ApiOkResponse({ description: 'Successfully delete user account' })
   // @Delete('users/:id')

@@ -2,13 +2,11 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ShortUserInfo, User, UserDocument } from 'src/schemas/user.schema';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { gen_user_id } from 'src/utils/func.backup';
 import { AuthUserDto } from './dto/auth-user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import console from 'console';
 
 @Injectable()
 export class UsersService {
@@ -174,6 +172,21 @@ export class UsersService {
     }
 
     return this.userModel.updateOne({ email: _email }, updateUserDto);
+  }
+
+  async updateFriendListById(_id: string, friend: string) {
+    const user = await this.userModel.findOne({ _id }).lean().exec();
+    let newFriends = [friend].concat(user.friends);
+    const tmp = [];
+    newFriends = newFriends.reduce((friendListNotDuplicate, element) => {
+      if (!tmp.includes(element.toString())) {
+        friendListNotDuplicate.push(element);
+        tmp.push(element.toString());
+      }
+      return friendListNotDuplicate;
+    }, []);
+
+    return this.userModel.updateOne({ _id }, { friends: newFriends });
   }
 
   // async remove(id: string) {
