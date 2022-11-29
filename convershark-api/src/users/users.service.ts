@@ -1,52 +1,66 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from 'src/schemas/user.schema';
+import { ShortUserInfo, User, UserDocument } from 'src/schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { gen_user_id } from 'src/utils/func.backup';
 import { AuthUserDto } from './dto/auth-user.dto';
 import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt'
+import { JwtService } from '@nestjs/jwt';
 import console from 'console';
 
 @Injectable()
 export class UsersService {
-
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
   ) {}
 
-  async signJwtToken(_id: string, email: string): Promise<{accessToken: string}> {
+  async signJwtToken(
+    _id: string,
+    email: string,
+  ): Promise<{ accessToken: string }> {
     const payload = {
       sub: _id,
-      email
-    }
+      email,
+    };
 
     const jwtString = await this.jwtService.signAsync(payload, {
       expiresIn: process.env.EXPIRES_IN,
-      secret: process.env.JWT_SECRET
-    })
+      secret: process.env.JWT_SECRET,
+    });
 
     return {
-      accessToken: jwtString
-    }
+      accessToken: jwtString,
+    };
   }
 
-  async register(authUserDto: AuthUserDto) : Promise<Object>{
+  async register(authUserDto: AuthUserDto): Promise<Object> {
     try {
       const user = new this.userModel(authUserDto);
 
       // gen and store hashedPassword
       const satlOrRounds = 10;
-      user.hashedPassword = await bcrypt.hash(authUserDto.password, satlOrRounds);
-  
+      user.hashedPassword = await bcrypt.hash(
+        authUserDto.password,
+        satlOrRounds,
+      );
+
+      // create new uid
+      let uid = gen_user_id(user.name);
+      // if duplication, create new uid
+      while (await this.userModel.findOne({ _uid: uid })) {
+        uid = gen_user_id(user.name);
+      }
+      user._uid = uid;
+
       await user.save();
+
       return this.signJwtToken(user._id, user.email);
     } catch (err) {
       if (err.code == 11000) {
-        throw new ForbiddenException('User with this email already exists')
+        throw new ForbiddenException('User with this email already exists');
       } else throw err.code;
     }
   }
@@ -55,13 +69,16 @@ export class UsersService {
     const user = await this.userModel.findOne({ email: authUserDto.email });
 
     if (!user) {
-      throw new ForbiddenException('User with this email does not exist')
+      throw new ForbiddenException('User with this email does not exist');
     }
 
-    const matchedPassword = await bcrypt.compare(authUserDto.password, user.hashedPassword);
+    const matchedPassword = await bcrypt.compare(
+      authUserDto.password,
+      user.hashedPassword,
+    );
 
     if (!matchedPassword) {
-      throw new ForbiddenException('Password does not match')
+      throw new ForbiddenException('Password does not match');
     }
 
     return this.signJwtToken(user._id, user.email);
@@ -85,62 +102,77 @@ export class UsersService {
   // }
 
   async findAll(name?: string): Promise<User[]> {
-    const users =  await this.userModel.find().populate('friends', ['_uid', 'name', 'avatar']).exec();
+    const users = await this.userModel
+      .find()
+      .populate('friends', ['_uid', 'name', 'avatar'])
+      .exec();
 
     if (name) {
-      return users.filter(user => user.name === name);
+      return users.filter((user) => user.name === name);
     }
     return users;
   }
 
+  async findUserByObjID(id: string): Promise<ShortUserInfo> {
+    const user = await this.userModel.findOne({ _id: id }).exec();
+    return {
+      _id: user._id,
+      _uid: user._uid,
+      avatar: user.avatar,
+      status: user.status,
+      bio: user.bio,
+      wallpaper: user.wallpaper,
+    };
+  }
 
-  async findUserByObjID(id: string) : Promise<User> {
-    const user = await this.userModel.findOne({_id: id}).exec();
+  async findUserByNameID(uid: string): Promise<User> {
+    const user = await this.userModel.findOne({ uid: uid }).exec();
     return user;
   }
 
-  async findUserByNameID(uid: string) : Promise<User> {
-    const user = await this.userModel.findOne({uid: uid}).exec();
+  async findUserByEmail(email: string): Promise<User> {
+    const user = await this.userModel
+      .findOne({ email: email })
+      .populate('friends', ['_id', '_uid', 'avatar', 'wallpaper', 'bio'])
+      .populate('servers')
+      .exec();
+
     return user;
   }
-
-  async findUserByEmail(email: string) : Promise<User> {
-    const user = await this.userModel.findOne({email: email}).exec();
-    return user;
-  }
-
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-
-    const user = await this.userModel.findOne({_id: id}).exec();
+    const user = await this.userModel.findOne({ _id: id }).exec();
 
     // if name changed, must change _uid
     if (updateUserDto.name) {
       // create new uid
       let uid = gen_user_id(updateUserDto.name);
       // if duplication, create new uid
-      while(await this.userModel.findOne({_uid: uid})) {
+      while (await this.userModel.findOne({ _uid: uid })) {
         uid = gen_user_id(updateUserDto.name);
       }
-      // set final uid
       updateUserDto._uid = uid;
     }
 
     // add new friend
     if (updateUserDto.friends) {
-      updateUserDto.friends = updateUserDto.friends.concat((await user).friends);
+      updateUserDto.friends = updateUserDto.friends.concat(
+        (await user).friends,
+      );
     }
 
     // add new server
     if (updateUserDto.servers) {
-      updateUserDto.servers = updateUserDto.servers.concat((await user).servers);
+      updateUserDto.servers = updateUserDto.servers.concat(
+        (await user).servers,
+      );
     }
 
-    return this.userModel.updateOne({_id: id}, updateUserDto);
+    return this.userModel.updateOne({ _id: id }, updateUserDto);
   }
 
-  async remove(id: string) {
-    const user = await this.userModel.deleteOne({_id: id}).exec();
-    return user;
-  }
+  // async remove(id: string) {
+  //   const user = await this.userModel.deleteOne({ _id: id }).exec();
+  //   return user;
+  // }
 }

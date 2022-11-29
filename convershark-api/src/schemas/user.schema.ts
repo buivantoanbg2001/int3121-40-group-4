@@ -10,24 +10,30 @@ import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from "class-valid
 
 export type UserDocument = User & Document;
 
+export class ShortUserInfo {
+    _id: string; 
+    _uid: string;
+    avatar: string;
+    wallpaper: string;
+    status: string;
+    bio: string;
+}
+
 
 @Schema()
 export class User {
-    toObject() {
-        throw new Error("Method not implemented.");
-    }
     @Transform(({ value }) => value.toString())
     _id: ObjectId;
 
-    @Prop({unique: true, required: false})
-    _uid?: string // nguyenvantu#1234
+    @Prop({unique: true})
+    _uid: string // nguyenvantu#1234
 
     @ApiProperty({required: true})
-    @Prop({required: false})
+    @Prop({default: 'nonome'})
     @IsString()
     @MinLength(4)
     @MaxLength(20)
-    name?: string;
+    name: string;
 
     @ApiProperty({required: true})
     @Prop({unique: true, required: true})
@@ -36,29 +42,25 @@ export class User {
     @IsNotEmpty()
     email: string;
 
-    @ApiProperty()
-    @Prop({unique: true, required: false})
-    phone?: string;
-
     @ApiProperty({required: false})
     @Prop({required: false})
     hashedPassword?: string;
 
     @ApiProperty({required: false})
-    @Prop()
-    status?: string;
+    @Prop({default: 'Online'})
+    status: 'Online' | 'Offline';
 
     @ApiProperty({required: false})
-    @Prop()
-    wallpaper?: string;
+    @Prop({default: 'link image'})
+    wallpaper: string;
 
     @ApiProperty({required: false})
-    @Prop()
-    avatar?: string;
+    @Prop({default: 'link image'})
+    avatar: string;
 
     @ApiProperty({required: false})
-    @Prop()
-    bio?: string;
+    @Prop({default: ""})
+    bio: string;
 
 
     @ApiProperty({required: false})
