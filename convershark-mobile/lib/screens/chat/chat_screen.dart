@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'package:app/utils/colors.dart';
-import 'package:app/widgets/chat_item.dart';
 import 'package:flutter/material.dart';
+
+import '../../utils/colors.dart';
+import '../../widgets/chat_item.dart';
 
 class Chat {
   final String avatar;

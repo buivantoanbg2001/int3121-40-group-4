@@ -1,5 +1,6 @@
-import 'package:app/utils/colors.dart';
 import "package:flutter/material.dart";
+
+import '../utils/colors.dart';
 
 class ChatItemWidget extends StatefulWidget {
   final String avatar;
