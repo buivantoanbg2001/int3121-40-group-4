@@ -20,6 +20,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
@@ -76,6 +77,21 @@ export class UsersController {
   @Patch('users/u/:id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @ApiOkResponse({ description: "Successfully updated users's friends list" })
+  @ApiOperation({
+    summary:
+      'Thêm id vào danh sách friend của user và thêm user vào danh sách friend của id',
+    description:
+      'Thêm id vào danh sách friend của user và thêm user vào danh sách friend của id',
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('users/friend/:id')
+  updateFriendList(@Param('id') id: string) {
+    // return this.usersService.update(id, updateUserDto);
+    // return this.usersService.update(id);
+    return 'a';
   }
 
   // @ApiOkResponse({ description: 'Successfully delete user account' })

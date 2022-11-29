@@ -19,7 +19,7 @@ export class Server {
     ref: 'User',
     required: true,
   })
-  host_id: string;
+  hostId: string;
 
   @ApiProperty({ required: true })
   @Prop({ required: true })
@@ -37,13 +37,13 @@ export class Server {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ChatChannel' }],
   })
   @Type(() => ChatChannel)
-  chat_channels: string[] = [];
+  chatChannels: string[] = [];
 
   @ApiProperty({ required: false })
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'CallChannel' }],
   })
   @Type(() => CallChannel)
-  call_channels: string[] = [];
+  callChannels: string[] = [];
 }
 export const ServerSchema = SchemaFactory.createForClass(Server);

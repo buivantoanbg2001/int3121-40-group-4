@@ -8,17 +8,15 @@ import { MessagesModule } from './messages/messages.module';
 import { ChatChannelsModule } from './chat_channels/chat_channels.module';
 import { ServersModule } from './servers/servers.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { ConfigModule} from '@nestjs/config'
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(
-      {
-        isGlobal: true,
-      }
-    ),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     MongooseModule.forRoot(
-      'mongodb://localhost/convershark_api'
+      'mongodb+srv://nvtu:rgMkTDbwyXOUtgPq@cluster0.d8m8hxc.mongodb.net/?retryWrites=true&w=majority',
     ),
     UsersModule,
     CallChannelsModule,
