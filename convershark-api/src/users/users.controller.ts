@@ -28,6 +28,7 @@ import { ShortUserInfo, User } from 'src/schemas/user.schema';
 import { AuthUserDto } from './dto/auth-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
+import console from 'console';
 
 @ApiTags('users')
 @Controller()
@@ -50,11 +51,13 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt')) // need to protect
   @Get('users/me')
-  me(@Req() request: Request) {
+  async me(@Req() request: Request) {
     // console.log(JSON.stringify(Object.keys(request)));           // print all properties of request
-    // console.log(request.user);                                   // where is it come from?
-    // return "My Detail Informations";
-    return request.user;
+    // return "My Detail Informations";                            // where is it come from?
+    // get returned email from field "user" of Express
+    const email = request.user.toString();
+    const user = await this.usersService.findUserByEmail(email);
+    return user;
   }
 
   @ApiOkResponse({
@@ -74,25 +77,25 @@ export class UsersController {
 
   @ApiOkResponse({ description: "Successfully updated user's infomation" })
   @UseGuards(AuthGuard('jwt'))
-  @Patch('users/u/:id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  @Patch('users/me')
+  async update(@Req() request: Request, @Body() updateUserDto: UpdateUserDto) {
+    // return this.usersService.update(request., updateUserDto);
+    const email = request.user.toString();
+    return await this.usersService.update(email, updateUserDto);
   }
 
-  @ApiOkResponse({ description: "Successfully updated users's friends list" })
-  @ApiOperation({
-    summary:
-      'Thêm id vào danh sách friend của user và thêm user vào danh sách friend của id',
-    description:
-      'Thêm id vào danh sách friend của user và thêm user vào danh sách friend của id',
-  })
-  @UseGuards(AuthGuard('jwt'))
-  @Patch('users/friend/:id')
-  updateFriendList(@Param('id') id: string) {
-    // return this.usersService.update(id, updateUserDto);
-    // return this.usersService.update(id);
-    return 'a';
-  }
+  // @ApiOkResponse({ description: "Successfully updated users's friends list" })
+  // @ApiOperation({
+  //   summary:
+  //     'Thêm id vào danh sách friend của user và thêm user vào danh sách friend của id',
+  //   description:
+  //     'Thêm id vào danh sách friend của user và thêm user vào danh sách friend của id',
+  // })
+  // @UseGuards(AuthGuard('jwt-update-user'))
+  // @Patch('users/friend/:id')
+  // updateFriendList(@Req() request: Request, @Body() updateUserDto: UpdateUserDto) {
+
+  // }
 
   // @ApiOkResponse({ description: 'Successfully delete user account' })
   // @Delete('users/:id')
