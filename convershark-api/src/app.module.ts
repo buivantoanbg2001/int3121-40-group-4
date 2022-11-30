@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CallChannelsModule } from './call_channels/call_channels.module';
 import { MessagesModule } from './messages/messages.module';
@@ -16,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.DATABASE_URL),
+    AuthModule,
     UsersModule,
     CallChannelsModule,
     MessagesModule,
