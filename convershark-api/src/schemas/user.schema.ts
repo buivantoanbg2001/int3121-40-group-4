@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Exclude, Transform, Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import mongoose, { Document, ObjectId } from 'mongoose';
 import { Server } from './servers.schema';
 
@@ -25,7 +25,7 @@ export class ShortUserInfo {
   bio: string;
 }
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;

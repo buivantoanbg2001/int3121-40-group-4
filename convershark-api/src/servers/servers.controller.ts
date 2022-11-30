@@ -1,47 +1,57 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ServersService } from './servers.service';
 import { CreateServerDto } from './dto/create-server.dto';
-import { UpdateServerDto } from './dto/update-server.dto';
-import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import ResponseData from 'src/utils/response-data';
 
-@ApiTags('servers')
+@ApiTags('Servers')
+@ApiBearerAuth()
+@ApiForbiddenResponse({ description: 'Không có quyền truy cập' })
+@UseGuards(AuthGuard('jwt'))
 @Controller('servers')
 export class ServersController {
   constructor(private readonly serversService: ServersService) {}
 
-  @ApiOkResponse({description: "Successfully created server"})
+  @ApiOperation({
+    summary: 'Tạo server',
+    description: 'Tạo server',
+  })
+  @ApiOkResponse({ description: 'Tạo server thành công' })
+  @ApiBadRequestResponse({ description: 'Tạo server thất bại' })
   @Post()
-  create(@Body() createServerDto: CreateServerDto) {
+  create(@Req() req, @Body() createServerDto: CreateServerDto) {
+    const _id = req.user;
+    createServerDto.hostId = _id;
     return this.serversService.create(createServerDto);
   }
 
-  @ApiOkResponse({isArray: true, description: "Successfully returned all servers"})
-  @Get()
-  findAll() {
-    return this.serversService.findAll();
-  }
-
-  @ApiOkResponse({description: "Successfully finded server by Id"})
-  @ApiNotFoundResponse({description: "Can't find. The server's id doesn't exits"})
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    const server = this.serversService.findOne(id);
-    if (!server) {
-      throw new NotFoundException("The server's id doesn't exist")
-    }
-    return server;
-  }
-
-  @ApiOkResponse({description: "Successfully updated server's content"})
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateServerDto: UpdateServerDto) {
-    return this.serversService.update(id, updateServerDto);
-  }
-
-  @ApiOkResponse({description: "Successfully deleted server"})
-  @ApiNotFoundResponse({description: "Can't find server to delete"})
+  @ApiOperation({
+    summary: 'Xóa server',
+    description: 'Xóa server',
+  })
+  @ApiOkResponse({ description: 'Successfully deleted server' })
+  @ApiNotFoundResponse({ description: "Can't find server to delete" })
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.serversService.remove(id);
+  async remove(@Req() req, @Param('id') serverId: string) {
+    const { _id: hostId } = req.user;
+    await this.serversService.remove(serverId, hostId);
+    return new ResponseData(true, { message: 'Xóa server thành công' }, null);
   }
 }
