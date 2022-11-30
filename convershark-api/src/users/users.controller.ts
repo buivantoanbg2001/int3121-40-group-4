@@ -43,7 +43,7 @@ export class UsersController {
   })
   @Get('me')
   async me(@Req() request) {
-    const _id = request.user;
+    const { _id } = request.user;
     const user = await this.usersService.getFullUserInfoById(_id);
     const { hashedPassword, ...userWithoutPassWord } = user;
     return userWithoutPassWord;
@@ -81,7 +81,7 @@ export class UsersController {
   })
   @Patch('me')
   async update(@Req() request, @Body() updateUserDto: UpdateUserDto) {
-    const _id = request.user;
+    const { _id } = request.user;
     await this.usersService.update(_id, updateUserDto);
     return new ResponseData(
       true,
@@ -103,7 +103,7 @@ export class UsersController {
   })
   @Patch('friends/update-both/:id')
   async updateFriendList(@Param('id') sender: string, @Req() request) {
-    const receiver = request.user;
+    const { _id: receiver } = request.user;
     await this.usersService.updateFriendListById(receiver, sender);
     await this.usersService.updateFriendListById(sender, receiver);
 

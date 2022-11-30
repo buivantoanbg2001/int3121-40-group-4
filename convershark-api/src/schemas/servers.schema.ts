@@ -8,7 +8,7 @@ import { User } from './user.schema';
 
 export type ServerDocument = Server & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Server {
   @Transform(({ value }) => value.toString())
   _id: string;
