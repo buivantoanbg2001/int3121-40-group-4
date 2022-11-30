@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -6,7 +6,6 @@ import {
   NotificationDocument,
 } from 'src/schemas/notifications.schema';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
 
 @Injectable()
 export class NotificationsService {
@@ -21,33 +20,50 @@ export class NotificationsService {
     return notification.save();
   }
 
-  async findAll() {
-    const notifications = await this.notificationModel.find().lean().exec();
+  async findAllForReceiver(userId: string) {
+    // console.log(userId);
+    const notifications = await this.notificationModel
+      .find({
+        receiver: userId,
+      })
+      .lean()
+      .populate('sender', ['_uid', 'name', 'avatar'])
+      .populate('serverId', ['name', 'hostId'])
+      .populate('chatId', ['name'])
+      .populate('callId', ['name'])
+      .exec();
     if (!notifications || !notifications[0]) {
-      throw new HttpException('Not Found', 404);
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Danh sách thông báo trống',
+        },
+        HttpStatus.FORBIDDEN,
+      );
     }
     return notifications;
   }
 
-  async findOne(id: string) {
+  async findOne(_notiId: string, requestId: string) {
+    // console.log(_notiId, requestId);
     const notification = await this.notificationModel
-      .findOne({ id })
+      .findOne({ _id: _notiId, receiver: requestId })
       .lean()
+      .populate('sender', ['_uid', 'name', 'avatar'])
       .exec();
     if (!notification) {
-      throw new HttpException('Not Found', 404);
+      throw new HttpException('Thông báo không tồn tại', 404);
     }
     return notification;
   }
 
-  async update(id: string, updateNotificationDto: UpdateNotificationDto) {
-    return `This action updates a #${id} notification`;
-  }
-
-  async remove(id: string) {
-    const notification = await this.notificationModel.deleteOne({ id }).exec();
+  async remove(_notiId: string, requestId: string) {
+    // console.log(requestId);
+    const notification = await this.notificationModel
+      .deleteOne({ _id: _notiId, receiver: requestId })
+      .exec();
     if (notification.deletedCount === 0) {
-      throw new HttpException('Not Found', 404);
+      throw new HttpException('Thông báo không tồn tại', 404);
     }
     return notification;
   }
