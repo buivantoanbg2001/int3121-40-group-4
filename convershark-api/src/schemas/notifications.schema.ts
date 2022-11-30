@@ -2,8 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import mongoose, { ObjectId, Document } from 'mongoose';
+import { CallChannel } from './call_channels.schema';
 import { ChatChannel } from './chat_channels.schema';
-import { Message } from './messages.schema';
+import { Server } from './servers.schema';
 import { User } from './user.schema';
 
 export type NotificationDocument = Notification & Document;
@@ -13,27 +14,36 @@ export class Notification {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @ApiProperty({ required: false })
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User' })
   @Type(() => User)
   sender: string;
 
-  @ApiProperty({ required: true })
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User' })
   @Type(() => User)
   receiver: string;
 
-  @ApiProperty({ required: true })
-  @Prop()
-  content: string;
+  @Prop({ required: true })
+  type: 'FRIEND' | 'MEMBER' | 'MESSAGE';
 
-  @ApiProperty({ required: false })
+  @Prop({ required: false, default: false })
+  isResponse: boolean;
+
+  @Prop({ required: false, default: false })
+  isAccept: boolean;
+
+  @Prop({ type: mongoose.Types.ObjectId, ref: 'Server' })
+  @Type(() => Server)
+  serverId: string;
+
   @Prop({ type: mongoose.Types.ObjectId, ref: 'ChatChannel' })
   @Type(() => ChatChannel)
-  chatChannel: string;
+  chatId: string;
 
-  @ApiProperty({ required: false })
-  @Prop({ default: false })
-  isReply: boolean;
+  @Prop({ type: mongoose.Types.ObjectId, ref: 'CallChannel' })
+  @Type(() => CallChannel)
+  callId: string;
+
+  @Prop({ required: true })
+  content: string;
 }
 export const NotificationSchema = SchemaFactory.createForClass(Notification);
