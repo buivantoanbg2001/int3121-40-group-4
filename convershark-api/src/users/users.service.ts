@@ -1,11 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ShortUserInfo, User, UserDocument } from 'src/schemas/user.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { gen_user_id } from 'src/utils/func.backup';
-import { AuthUserDto } from './dto/auth-user.dto';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -14,92 +12,6 @@ export class UsersService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
   ) {}
-
-  async signJwtToken(
-    _id: string,
-    email: string,
-  ): Promise<{ accessToken: string }> {
-    const payload = {
-      sub: _id,
-      email,
-    };
-
-    const jwtString = await this.jwtService.signAsync(payload, {
-      expiresIn: process.env.EXPIRES_IN,
-      secret: process.env.JWT_SECRET,
-    });
-
-    return {
-      accessToken: jwtString,
-    };
-  }
-
-  async register(authUserDto: AuthUserDto): Promise<Object> {
-    try {
-      const user = new this.userModel(authUserDto);
-
-      // gen and store hashedPassword
-      const satlOrRounds = 10;
-      user.hashedPassword = await bcrypt.hash(
-        authUserDto.password,
-        satlOrRounds,
-      );
-
-      // create new uid
-      let uid = gen_user_id(user.name);
-      // if duplication, create new uid
-      while (await this.userModel.findOne({ _uid: uid })) {
-        uid = gen_user_id(user.name);
-      }
-      user._uid = uid;
-
-      await user.save();
-
-      return this.signJwtToken(user._id, user.email);
-    } catch (err) {
-      if (err.code == 11000) {
-        throw new ForbiddenException('User with this email already exists');
-      } else throw err.code;
-    }
-  }
-
-  async login(authUserDto: AuthUserDto): Promise<Object> {
-    const user = await this.userModel
-      .findOne({ email: authUserDto.email })
-      .lean();
-
-    if (!user) {
-      throw new ForbiddenException('User with this email does not exist');
-    }
-
-    const matchedPassword = await bcrypt.compare(
-      authUserDto.password,
-      user.hashedPassword,
-    );
-
-    if (!matchedPassword) {
-      throw new ForbiddenException('Password does not match');
-    }
-
-    return this.signJwtToken(user._id, user.email);
-  }
-
-  // Create a user with input infomation
-  // Auto gen user_id: name + "#" + rand_number(0000 -> 9999)
-
-  // async createUser(createUserDto: CreateUserDto): Promise<User> {
-  //   const user = new this.userModel(createUserDto);
-
-  //   // create new uid
-  //   let uid = gen_user_id(user.name);
-  //   // if duplication, create new uid
-  //   while(await this.userModel.findOne({_uid: uid})) {
-  //     uid = gen_user_id(user.name);
-  //   }
-  //   // set final uid
-  //   user._uid = uid;
-  //   return user.save();
-  // }
 
   async findAll(name?: string): Promise<User[]> {
     const users = await this.userModel
@@ -132,9 +44,9 @@ export class UsersService {
     return user;
   }
 
-  async findUserByEmail(email: string): Promise<User> {
+  async getFullUserInfoById(_id: string): Promise<User> {
     const user = await this.userModel
-      .findOne({ email: email })
+      .findOne({ _id })
       .lean()
       .populate('friends', ['_id', '_uid', 'avatar', 'wallpaper', 'bio'])
       .populate('servers')
@@ -143,8 +55,8 @@ export class UsersService {
     return user;
   }
 
-  async update(_email: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userModel.findOne({ email: _email }).lean().exec();
+  async update(_id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userModel.findOne({ _id }).lean().exec();
 
     // if name changed, must change _uid
     if (updateUserDto.name) {
@@ -171,7 +83,7 @@ export class UsersService {
       );
     }
 
-    return this.userModel.updateOne({ email: _email }, updateUserDto);
+    return this.userModel.updateOne({ _id }, updateUserDto);
   }
 
   async updateFriendListById(_id: string, friend: string) {
@@ -188,9 +100,4 @@ export class UsersService {
 
     return this.userModel.updateOne({ _id }, { friends: newFriends });
   }
-
-  // async remove(id: string) {
-  //   const user = await this.userModel.deleteOne({ _id: id }).exec();
-  //   return user;
-  // }
 }

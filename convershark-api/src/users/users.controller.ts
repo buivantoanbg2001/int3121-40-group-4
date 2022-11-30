@@ -1,72 +1,66 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
-  Delete,
-  Query,
-  Put,
   NotFoundException,
   UseGuards,
   Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
   ApiBadRequestResponse,
-  ApiBody,
-  ApiCreatedResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { ShortUserInfo, User } from 'src/schemas/user.schema';
-import { AuthUserDto } from './dto/auth-user.dto';
+import { ShortUserInfo } from 'src/schemas/user.schema';
 import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
 import ResponseData from 'src/utils/response-data';
 
 @ApiTags('Người dùng')
-@Controller()
+@ApiBearerAuth()
+@ApiForbiddenResponse({ description: 'Không có quyền truy cập' })
+@UseGuards(AuthGuard('jwt'))
+@Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('login')
-  async login(@Body() authUserDto: AuthUserDto) {
-    return this.usersService.login(authUserDto);
-  }
-
-  @ApiOkResponse({
-    type: User,
-    description: 'Successfully created user account',
+  @ApiOperation({
+    summary: 'Lấy toàn bộ thông tin người dùng đang đăng nhập',
+    description: 'Lấy toàn bộ thông tin người dùng đang đăng nhập',
   })
-  @Post('register')
-  async register(@Body() authUserDto: AuthUserDto) {
-    return this.usersService.register(authUserDto);
-  }
-
-  @UseGuards(AuthGuard('jwt')) // need to protect
-  @Get('users/me')
+  @ApiOkResponse({
+    description: 'Lấy toàn bộ thông tin người dùng đang đăng nhập thành công',
+  })
+  @ApiBadRequestResponse({
+    description: 'Lấy toàn bộ thông tin người dùng đang đăng nhập thất bại',
+  })
+  @Get('me')
   async me(@Req() request) {
-    // get returned email from field "user" of Express
-    const { email } = request.user;
-    const user = await this.usersService.findUserByEmail(email);
+    const _id = request.user;
+    const user = await this.usersService.getFullUserInfoById(_id);
     const { hashedPassword, ...userWithoutPassWord } = user;
     return userWithoutPassWord;
   }
 
+  @ApiOperation({
+    summary: 'Lấy một phần thông tin người dùng',
+    description: 'Lấy một phần thông tin người dùng',
+  })
   @ApiOkResponse({
-    type: User,
-    description: 'Successfully retrieved user information',
+    description: 'Lấy một phần thông tin người dùng thành công',
+  })
+  @ApiBadRequestResponse({
+    description: 'Lấy một phần thông tin người dùng thất bại',
   })
   @ApiNotFoundResponse({ description: "The user's id doesn't exist" })
-  @UseGuards(AuthGuard('jwt'))
-  @Get('users/u/:id')
+  @Get('u/:id')
   async getUserbyObjId(@Param('id') id: string): Promise<ShortUserInfo> {
     const user = await this.usersService.findUserByObjID(id);
     if (!user) {
@@ -75,36 +69,44 @@ export class UsersController {
     return user;
   }
 
-  @ApiOkResponse({ description: "Successfully updated user's infomation" })
-  @UseGuards(AuthGuard('jwt'))
-  @Patch('users/me')
-  async update(@Req() request: Request, @Body() updateUserDto: UpdateUserDto) {
-    // return this.usersService.update(request., updateUserDto);
-    const email = request.user.toString();
-    return await this.usersService.update(email, updateUserDto);
+  @ApiOperation({
+    summary: 'Cập nhật thông tin người dùng đang đăng nhập',
+    description: 'Cập nhật thông tin người dùng đang đăng nhập',
+  })
+  @ApiOkResponse({
+    description: 'Cập nhật thông tin người dùng đang đăng nhập thành công',
+  })
+  @ApiBadRequestResponse({
+    description: 'Cập nhật thông tin người dùng đang đăng nhập thất bại',
+  })
+  @Patch('me')
+  async update(@Req() request, @Body() updateUserDto: UpdateUserDto) {
+    const _id = request.user;
+    await this.usersService.update(_id, updateUserDto);
+    return new ResponseData(
+      true,
+      { message: 'Cập nhật thông tin người dùng đang đăng nhập thành công' },
+      null,
+    );
   }
 
-  @ApiOkResponse({
-    description: 'Cập nhật danh sách bạn bè của cả 2 thành công',
-  })
   @ApiOperation({
-    summary: 'Thêm id vào danh sách bạn bè của user và ngược lại',
+    summary: 'Thêm id vào danh sách bạn bè của user ngược lại',
     description:
       'Thêm id vào danh sách bạn bè của user và thêm user vào danh sách bạn bè của id',
   })
-  @UseGuards(AuthGuard('jwt'))
-  @Patch('users/friends/update-both/:id')
+  @ApiOkResponse({
+    description: 'Cập nhật danh sách bạn bè của cả 2 thành công',
+  })
+  @ApiBadRequestResponse({
+    description: 'Cập nhật danh sách bạn bè của cả 2 thất bại',
+  })
+  @Patch('friends/update-both/:id')
   async updateFriendList(@Param('id') sender: string, @Req() request) {
-    const { _id: receiver } = request.user;
+    const receiver = request.user;
     await this.usersService.updateFriendListById(receiver, sender);
     await this.usersService.updateFriendListById(sender, receiver);
 
     return new ResponseData(true, { message: 'Các bạn đã là bạn bè' }, null);
   }
-
-  // @ApiOkResponse({ description: 'Successfully delete user account' })
-  // @Delete('users/:id')
-  // async deleteUser(@Param('id') id: string) {
-  //   return await this.usersService.remove(id);
-  // }
 }
