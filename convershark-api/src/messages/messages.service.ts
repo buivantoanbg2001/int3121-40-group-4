@@ -1,7 +1,6 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import path from 'path';
 import { Message, MessageDocument } from 'src/schemas/messages.schema';
 import { User } from 'src/schemas/user.schema';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -26,8 +25,8 @@ export class MessagesService {
     const messages = await this.messageModel
       .find()
       .lean()
-      .populate('user_id', ['_uid', 'name', 'avatar'])
-      .populate('reply_mes_id', ['_id', 'content'])
+      .populate('ownerId', ['_uid', 'name', 'avatar'])
+      .populate('replyMessageId', ['_id', 'content'])
       .exec();
 
     return messages;
@@ -37,22 +36,57 @@ export class MessagesService {
     const message = await (
       await (
         await this.messageModel.findOne({ _id: id })
-      ).populate('user_id', ['_uid', 'name', 'avatar'])
-    ).populate('reply_mes_id', ['_id', 'content']);
+      ).populate('ownerId', ['_uid', 'name', 'avatar'])
+    ).populate('replyMessageId', ['_id', 'content']);
 
     // If content is null, return null
-    if (!message.content) {
-      return;
+    if (!message) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Lỗi tin nhắn',
+        },
+        HttpStatus.FORBIDDEN,
+      );
     }
     return message;
   }
 
-  async update(id: string, updateMessageDto: UpdateMessageDto) {
-    return this.messageModel.updateOne({ _id: id }, updateMessageDto);
+  async update(
+    mesId: string,
+    ownerId: string,
+    updateMessageDto: UpdateMessageDto,
+  ) {
+    const message = await this.messageModel.findOneAndUpdate(
+      { _id: mesId, ownerId: ownerId },
+      updateMessageDto,
+    );
+    if (!message) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Lỗi tin nhắn',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    return message;
   }
 
-  async remove(id: string) {
-    const message = await this.messageModel.deleteOne({ id }).exec();
+  async remove(mesId: string, _ownerId: string) {
+    const message = await this.messageModel
+      .deleteOne({ _id: mesId, ownerId: _ownerId })
+      .exec();
+
+    if (!message) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Lỗi tin nhắn',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
     return message;
   }
 }

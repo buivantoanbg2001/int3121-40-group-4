@@ -15,7 +15,7 @@ export class Message {
   @ApiProperty({ required: true })
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User' })
   @Type(() => User)
-  userId: string;
+  ownerId: string;
 
   @ApiProperty({ required: true })
   @Prop()
