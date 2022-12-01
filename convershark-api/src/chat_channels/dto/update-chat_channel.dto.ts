@@ -1,4 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateChatChannelDto } from './create-chat_channel.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateChatChannelDto extends PartialType(CreateChatChannelDto) {}
+export class UpdateChatChannelDto {
+  @ApiProperty({ required: false })
+  members?: string[];
+
+  @ApiProperty({ required: false })
+  hostId?: string;
+}

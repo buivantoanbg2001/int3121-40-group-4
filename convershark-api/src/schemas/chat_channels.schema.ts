@@ -13,6 +13,14 @@ export class ChatChannel {
   _id: ObjectId;
 
   @ApiProperty({ required: true })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  })
+  hostId: string;
+
+  @ApiProperty({ required: true })
   @Prop()
   name: string;
 

@@ -1,12 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateChatChannelDto {
-    @ApiProperty({required: true})
-    name: string;
+  @ApiProperty({ required: true })
+  name: string;
 
-    @ApiProperty({required: false})
-    members: string[] = [];     // list user_id
+  @ApiProperty({ required: false })
+  hostId?: string;
 
-    @ApiProperty({required: false})
-    messages: string[] = [];    // list message_id
+  @ApiProperty({ required: false })
+  serverId?: string;
 }

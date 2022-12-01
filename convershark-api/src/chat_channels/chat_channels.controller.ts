@@ -1,44 +1,94 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import ResponseData from 'src/utils/response-data';
 import { ChatChannelsService } from './chat_channels.service';
 import { CreateChatChannelDto } from './dto/create-chat_channel.dto';
 import { UpdateChatChannelDto } from './dto/update-chat_channel.dto';
 
-@ApiTags('chat-channels')
+@Controller('chat-channels')
+@ApiTags('Chat channels')
+@ApiBearerAuth()
+@ApiForbiddenResponse({ description: 'Không có quyền truy cập' })
+@UseGuards(AuthGuard('jwt'))
 @Controller('chat-channels')
 export class ChatChannelsController {
   constructor(private readonly chatChannelsService: ChatChannelsService) {}
 
-  @ApiOkResponse({description: "Successfully create chat channel"})
+  @ApiOperation({
+    summary: 'Tạo chat channel',
+    description: 'Tạo chat channel',
+  })
+  @ApiOkResponse({ description: 'Tạo chat channel thành công' })
+  @ApiBadRequestResponse({ description: 'Tạo chat channel thất bại' })
   @Post()
-  create(@Body() createChatChannelDto: CreateChatChannelDto) {
-    return this.chatChannelsService.create(createChatChannelDto);
+  async create(
+    @Req() request,
+    @Body() createChatChannelDto: CreateChatChannelDto,
+  ) {
+    const { _id } = request.user;
+    createChatChannelDto.hostId = _id;
+    await this.chatChannelsService.create(createChatChannelDto);
+    return new ResponseData(
+      true,
+      { message: 'Tạo chat channel thành công' },
+      null,
+    );
   }
 
-  @ApiOkResponse({isArray: true, description: "Successfully returned all chat channels"})
-  @Get()
-  findAll() {
-    return this.chatChannelsService.findAll();
-  }
-
-
-  @ApiOkResponse({description: "Successfully finded chat channels by Id"})
-  @ApiNotFoundResponse({description: "Can't find. The chat channel's id doesn't exits"})
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chatChannelsService.findOne(id);
-  }
-
-  @ApiOkResponse({description: "Successfully updated chat channel's content"})
+  @ApiOperation({
+    summary: 'Cập nhật chat channel',
+    description: 'Cập nhật chat channel',
+  })
+  @ApiOkResponse({ description: 'Cập nhật chat channel thành công' })
+  @ApiBadRequestResponse({ description: 'Cập nhật chat channel thất bại' })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateChatChannelDto: UpdateChatChannelDto) {
-    return this.chatChannelsService.update(id, updateChatChannelDto);
+  async update(
+    @Req() request,
+    @Param('id') id: string,
+    @Body() updateChatChannelDto: UpdateChatChannelDto,
+  ) {
+    const { _id: hostId } = request.user;
+    await this.chatChannelsService.update(id, hostId, updateChatChannelDto);
+    return new ResponseData(
+      true,
+      { message: 'Cập nhật chat channel thành công' },
+      null,
+    );
   }
 
-  @ApiOkResponse({description: "Successfully deleted chat channel"})
-  @ApiNotFoundResponse({description: "Can't find chat channel to delete"})
+  @ApiOperation({
+    summary: 'Xóa chat channel',
+    description: 'Xóa chat channel',
+  })
+  @ApiOkResponse({ description: 'Xóa chat channel thành công' })
+  @ApiBadRequestResponse({ description: 'Xóa chat channel thất bại' })
+  @ApiNotFoundResponse({ description: "Can't find chat channel to delete" })
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.chatChannelsService.remove(id);
+  async remove(@Req() request, @Param('id') chatChannelId: string) {
+    const { _id: hostId } = request.user;
+    await this.chatChannelsService.remove(chatChannelId, hostId);
+    return new ResponseData(
+      true,
+      { message: 'Xóa chat channel thành công' },
+      null,
+    );
   }
 }

@@ -102,7 +102,7 @@ export class UsersController {
     description: 'Cập nhật danh sách bạn bè của cả 2 thất bại',
   })
   @Patch('friends/update-both/:id')
-  async updateFriendList(@Param('id') sender: string, @Req() request) {
+  async updateFriendList(@Req() request, @Param('id') sender: string) {
     const { _id: receiver } = request.user;
     await this.usersService.updateFriendListById(receiver, sender);
     await this.usersService.updateFriendListById(sender, receiver);

@@ -6,6 +6,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  Patch,
 } from '@nestjs/common';
 import { ServersService } from './servers.service';
 import { CreateServerDto } from './dto/create-server.dto';
@@ -20,6 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import ResponseData from 'src/utils/response-data';
+import { UpdateServerDto } from 'src/servers/dto/update-server.dto';
 
 @ApiTags('Servers')
 @ApiBearerAuth()
@@ -40,6 +42,27 @@ export class ServersController {
     const _id = req.user;
     createServerDto.hostId = _id;
     return this.serversService.create(createServerDto);
+  }
+
+  @ApiOperation({
+    summary: 'Cập nhật server',
+    description: 'Cập nhật server',
+  })
+  @ApiOkResponse({ description: 'Cập nhật server thành công' })
+  @ApiBadRequestResponse({ description: 'Cập nhật server thất bại' })
+  @Patch(':id')
+  async update(
+    @Req() request,
+    @Param('id') id: string,
+    @Body() updateServerDto: UpdateServerDto,
+  ) {
+    const { _id: hostId } = request.user;
+    await this.serversService.update(id, hostId, updateServerDto);
+    return new ResponseData(
+      true,
+      { message: 'Cập nhật server thành công' },
+      null,
+    );
   }
 
   @ApiOperation({

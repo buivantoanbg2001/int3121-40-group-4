@@ -1,21 +1,24 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
   Patch,
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import ResponseData from 'src/utils/response-data';
 import { CallChannelsService } from './call_channels.service';
 import { CreateCallChannelDto } from './dto/create-call_channel.dto';
 import { UpdateCallChannelDto } from './dto/update-call_channel.dto';
@@ -28,43 +31,63 @@ import { UpdateCallChannelDto } from './dto/update-call_channel.dto';
 export class CallChannelsController {
   constructor(private readonly callChannelsService: CallChannelsService) {}
 
-  @ApiOkResponse({ description: 'Successfully create call channel' })
+  @ApiOperation({
+    summary: 'Tạo call channel',
+    description: 'Tạo call channel',
+  })
+  @ApiOkResponse({ description: 'Tạo call channel thành công' })
+  @ApiBadRequestResponse({ description: 'Tạo call channel thất bại' })
   @Post()
-  create(@Body() createCallChannelDto: CreateCallChannelDto) {
-    return this.callChannelsService.createCallChannel(createCallChannelDto);
+  async create(
+    @Req() request,
+    @Body() createCallChannelDto: CreateCallChannelDto,
+  ) {
+    const { _id } = request.user;
+    createCallChannelDto.hostId = _id;
+    await this.callChannelsService.create(createCallChannelDto);
+    return new ResponseData(
+      true,
+      { message: 'Tạo call channel thành công' },
+      null,
+    );
   }
 
-  @ApiOkResponse({
-    isArray: true,
-    description: 'Successfully returned all call channels',
+  @ApiOperation({
+    summary: 'Cập nhật call channel',
+    description: 'Cập nhật call channel',
   })
-  @Get()
-  findAll() {
-    return this.callChannelsService.findAll();
-  }
-
-  @ApiOkResponse({ description: 'Successfully finded call channels by Id' })
-  @ApiNotFoundResponse({
-    description: "Can't find. The call channel's id doesn't exits",
-  })
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.callChannelsService.findOne(id);
-  }
-
-  @ApiOkResponse({ description: "Successfully updated call channel's content" })
+  @ApiOkResponse({ description: 'Cập nhật call channel thành công' })
+  @ApiBadRequestResponse({ description: 'Cập nhật call channel thất bại' })
   @Patch(':id')
-  update(
+  async update(
+    @Req() request,
     @Param('id') id: string,
     @Body() updateCallChannelDto: UpdateCallChannelDto,
   ) {
-    return this.callChannelsService.update(id, updateCallChannelDto);
+    const { _id: hostId } = request.user;
+    await this.callChannelsService.update(id, hostId, updateCallChannelDto);
+    return new ResponseData(
+      true,
+      { message: 'Cập nhật call channel thành công' },
+      null,
+    );
   }
 
-  @ApiOkResponse({ description: 'Successfully deleted call channel' })
+  @ApiOperation({
+    summary: 'Xóa call channel',
+    description: 'Xóa call channel',
+  })
+  @ApiOkResponse({ description: 'Xóa call channel thành công' })
+  @ApiBadRequestResponse({ description: 'Xóa call channel thất bại' })
   @ApiNotFoundResponse({ description: "Can't find call channel to delete" })
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.callChannelsService.remove(id);
+  async remove(@Req() request, @Param('id') callChannelId: string) {
+    const { _id: hostId } = request.user;
+    await this.callChannelsService.remove(callChannelId, hostId);
+    return new ResponseData(
+      true,
+      { message: 'Xóa call channel thành công' },
+      null,
+    );
   }
 }
