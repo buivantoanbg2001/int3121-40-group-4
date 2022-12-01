@@ -5,6 +5,7 @@ import {
   CallChannel,
   CallChannelDocument,
 } from 'src/schemas/call_channels.schema';
+import { ServersService } from 'src/servers/servers.service';
 import { CreateCallChannelDto } from './dto/create-call_channel.dto';
 import { UpdateCallChannelDto } from './dto/update-call_channel.dto';
 
@@ -13,83 +14,65 @@ export class CallChannelsService {
   constructor(
     @InjectModel(CallChannel.name)
     private callChannelModel: Model<CallChannelDocument>,
+    private serversService: ServersService,
   ) {}
 
-  async createCallChannel(
-    createCallChannelDto: CreateCallChannelDto,
-  ): Promise<CallChannel> {
+  async create(createCallChannelDto: CreateCallChannelDto) {
+    const { hostId, serverId } = createCallChannelDto;
+    const server = await this.serversService.findOne(serverId, hostId);
+
+    if (!server) {
+      return null;
+    }
+
     const callChannel = new this.callChannelModel(createCallChannelDto);
+    callChannel.members.push(hostId);
+    await callChannel.save();
 
-    // store start pepple is the first member
-    callChannel.members.push(createCallChannelDto.creatorId);
-
-    return callChannel.save();
+    const newCallChannelList = [callChannel._id].concat(server.callChannels);
+    return this.serversService.updateFromChannel(serverId, {
+      callChannels: newCallChannelList,
+    });
   }
 
-  async findAll(): Promise<any> {
-    const call_channels = await this.callChannelModel
-      .find()
-      .lean()
-      .populate('members', ['_uid', 'name', 'avatar'])
-      .exec();
+  async update(
+    _id: string,
+    hostId: string,
+    updateCallChannelDto: UpdateCallChannelDto,
+  ) {
+    const channel = await this.callChannelModel.findOne({ _id, hostId }).lean();
 
-    if (!call_channels) {
-      throw new HttpException('Not Found', 404);
+    if (!channel) {
+      return null;
     }
-    return call_channels;
-  }
 
-  async findOne(id: string) {
-    const user = await this.callChannelModel
-      .findOne({ id })
-      .lean()
-      .populate('members', ['_uid', 'name', 'avatar'])
-      .exec();
-
-    if (!user) {
-      throw new HttpException('Not Found', 404);
-    }
-    return user;
-  }
-
-  async update(id: string, updateCallChannelDto: UpdateCallChannelDto) {
-    const cc = this.callChannelModel.findOne({ _id: id }).lean();
-
-    // add people to call channel
     if (updateCallChannelDto.members) {
-      updateCallChannelDto.members = updateCallChannelDto.members.concat(
-        (await cc).members,
-      );
+      let newFriends = updateCallChannelDto.members.concat(channel.members);
+      const tmp = [];
+      newFriends = newFriends.reduce((friendListNotDuplicate, element) => {
+        if (!tmp.includes(element.toString())) {
+          friendListNotDuplicate.push(element);
+          tmp.push(element.toString());
+        }
+        return friendListNotDuplicate;
+      }, []);
+
+      updateCallChannelDto.members = newFriends;
     }
 
-    return this.callChannelModel.updateOne({ _id: id }, updateCallChannelDto);
+    return this.callChannelModel.updateOne(
+      { _id, hostId },
+      updateCallChannelDto,
+    );
   }
 
-  async remove(id: string) {
-    const user = await this.callChannelModel.deleteOne({ id }).exec();
-    if (user.deletedCount === 0) {
-      throw new HttpException('Not Found', 404);
+  async remove(_id: string, hostId: string) {
+    const channel = await this.callChannelModel
+      .deleteOne({ _id, hostId })
+      .exec();
+    if (channel.deletedCount === 0) {
+      throw new HttpException('Không tồn tại call channel', 404);
     }
-    return user;
+    return channel;
   }
-
-  // create(createCallChannelDto: CreateCallChannelDto) {
-  //   return 'This action adds a new callChannel';
-  // }
-
-  // findAll() {
-  //   return `This action returns all callChannels`;
-  // }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} callChannel`;
-  // }
-
-  // update(id: number, updateCallChannelDto: UpdateCallChannelDto) {
-  //   return `This action updates a #${id} callChannel`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} callChannel`;
-  // }
 }

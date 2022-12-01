@@ -1,9 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateCallChannelDto {
+export class UpdateServerDto {
   @ApiProperty({ required: false })
   members?: string[];
 
   @ApiProperty({ required: false })
-  hostId?: string;
+  chatChannels?: string[];
+
+  @ApiProperty({ required: false })
+  callChannels?: string[];
 }
