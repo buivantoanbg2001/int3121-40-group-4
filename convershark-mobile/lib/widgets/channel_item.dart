@@ -1,4 +1,6 @@
-import 'package:app/utils/colors.dart';
+import 'package:convershark/screens/call/prepare_call.dart';
+import 'package:convershark/helpers/constains/colors.dart';
+import 'package:convershark/helpers/overlapping_panels.dart';
 import "package:flutter/material.dart";
 
 enum ChannelItemType { callVideo, chat }
@@ -24,12 +26,13 @@ class ChannelItemWidget extends StatelessWidget {
           highlightColor: channelWidgetClickColor,
           borderRadius: BorderRadius.circular(4),
           onTap: () {
-            // type == ChannelItemType.callVideo
-            //     ? Navigator.of(context).push(PrepareCallScreenPageRoute())
-            //     : Navigator.push(
-            //         context,
-            //         MaterialPageRoute(builder: (context) => const ChatScreen()),
-            //       );
+            type == ChannelItemType.callVideo
+                ? Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const PrepareCallScreen()),
+                  )
+                : OverlappingPanels.of(context)?.reveal(RevealSide.main);
           },
           child: Container(
             padding: const EdgeInsets.all(8),
@@ -60,21 +63,21 @@ class ChannelItemWidget extends StatelessWidget {
   }
 }
 
-// class PrepareCallScreenPageRoute extends PageRouteBuilder {
-//   PrepareCallScreenPageRoute()
-//       : super(
-//             pageBuilder: (BuildContext context, Animation<double> animation,
-//                     Animation<double> secondaryAnimation) =>
-//                 const PrepareCallScreen());
+class PrepareCallScreenPageRoute extends PageRouteBuilder {
+  PrepareCallScreenPageRoute()
+      : super(
+            pageBuilder: (BuildContext context, Animation<double> animation,
+                    Animation<double> secondaryAnimation) =>
+                const PrepareCallScreen());
 
-//   @override
-//   Widget buildPage(BuildContext context, Animation<double> animation,
-//       Animation<double> secondaryAnimation) {
-//     return SlideTransition(
-//       position:
-//           Tween<Offset>(begin: const Offset(0, 1), end: const Offset(.0, .0))
-//               .animate(controller!),
-//       child: const PrepareCallScreen(),
-//     );
-//   }
-// }
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
+    return SlideTransition(
+      position:
+          Tween<Offset>(begin: const Offset(0, 1), end: const Offset(.0, .0))
+              .animate(controller!),
+      child: const PrepareCallScreen(),
+    );
+  }
+}

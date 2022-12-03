@@ -1,5 +1,5 @@
-import 'package:app/utils/colors.dart';
-import 'package:app/widgets/account_item.dart';
+import 'package:convershark/helpers/constains/colors.dart';
+import 'package:convershark/widgets/account_item.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 

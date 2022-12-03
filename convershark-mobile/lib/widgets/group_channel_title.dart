@@ -1,13 +1,15 @@
-import 'package:app/utils/colors.dart';
+import 'package:convershark/helpers/constains/colors.dart';
 import "package:flutter/material.dart";
 
-enum GroupChannelTitleType { callVideo, chat }
+enum GroupChannelTitleType { call, chat }
 
 class GroupChannelTitleWidget extends StatelessWidget {
+  final bool isExpand;
   final String name;
 
   const GroupChannelTitleWidget({
     Key? key,
+    required this.isExpand,
     required this.name,
   }) : super(key: key);
 
@@ -19,14 +21,15 @@ class GroupChannelTitleWidget extends StatelessWidget {
         splashColor: channelWidgetClickColor,
         highlightColor: channelWidgetClickColor,
         child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          const Icon(Icons.expand_more, size: 16, color: channelIconColor),
+          Icon(isExpand ? Icons.expand_more : Icons.chevron_right,
+              size: 12, color: channelIconColor),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Text(
                 name,
                 style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: channelIconColor),
               ),

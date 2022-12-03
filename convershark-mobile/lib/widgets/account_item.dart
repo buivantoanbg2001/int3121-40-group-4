@@ -1,4 +1,4 @@
-import 'package:app/utils/colors.dart';
+import 'package:convershark/helpers/constains/colors.dart';
 import "package:flutter/material.dart";
 
 class AccountItemWidget extends StatelessWidget {

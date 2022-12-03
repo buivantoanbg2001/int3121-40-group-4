@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:convershark/screens/signin/signin_screen.dart';
+import 'package:convershark/helpers/constains/colors.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
-import '../../utils/colors.dart';
-import '../signin/signin.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -33,7 +32,7 @@ class WelcomeScreen extends StatelessWidget {
                       style: TextStyle(
                         color: whiteColor,
                         fontSize: 26,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(
@@ -68,10 +67,7 @@ class WelcomeScreen extends StatelessWidget {
                     timeInSecForIosWeb: 1,
                   );
                 },
-                child: const Text(
-                  'Đăng ký',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+                child: const Text('Đăng ký'),
               ),
               const SizedBox(
                 height: 6,
@@ -92,10 +88,7 @@ class WelcomeScreen extends StatelessWidget {
                         builder: (context) => const SigninScreen()),
                   );
                 },
-                child: const Text(
-                  'Đăng nhập',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+                child: const Text('Đăng nhập'),
               ),
             ],
           ),

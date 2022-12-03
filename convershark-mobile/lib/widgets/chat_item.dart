@@ -1,6 +1,6 @@
+import 'package:convershark/helpers/constains/colors.dart';
 import "package:flutter/material.dart";
-
-import '../utils/colors.dart';
+import 'package:intl/intl.dart';
 
 class ChatItemWidget extends StatefulWidget {
   final String avatar;
@@ -23,12 +23,14 @@ class ChatItemWidget extends StatefulWidget {
 class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   Widget build(BuildContext context) {
+    final inputFormat = DateFormat('dd/MM/yyyy');
+
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(children: [
         CircleAvatar(
-          radius: 28,
+          radius: 22,
           backgroundImage: NetworkImage(widget.avatar),
         ),
         const SizedBox(width: 12),
@@ -42,25 +44,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style: const TextStyle(
                     color: whiteColor,
                     fontSize: 16,
-                    fontWeight: FontWeight.w700),
+                    fontWeight: FontWeight.bold),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Padding(
-                padding: const EdgeInsets.only(bottom: 0.5),
+                padding: const EdgeInsets.only(bottom: 1),
                 child: Text(
-                  widget.createdAt,
+                  inputFormat.format(DateTime.parse(widget.createdAt)),
                   style: const TextStyle(
-                    color: whiteColor,
+                    color: chatTextDateColor,
                     fontSize: 12,
                   ),
                 ),
               ),
             ]),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               widget.message,
-              style: const TextStyle(
-                  color: whiteColor, fontSize: 16, fontWeight: FontWeight.w500),
+              style: const TextStyle(color: whiteColor),
             )
           ],
         ),

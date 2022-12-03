@@ -125,13 +125,17 @@ class OverlappingPanelsState extends State<OverlappingPanels>
 
   void reveal(RevealSide direction) {
     // can only reveal when showing main
-    if (translate != 0) {
-      return;
-    }
+    // if (translate != 0) {
+    //   return;
+    // }
 
     final mediaWidth = MediaQuery.of(context).size.width;
 
-    final multiplier = (direction == RevealSide.left ? 1 : -1);
+    final multiplier = (direction == RevealSide.left
+        ? 1
+        : direction == RevealSide.right
+            ? -1
+            : 0);
     final goal = _calculateGoal(mediaWidth, multiplier);
 
     final animationController = AnimationController(

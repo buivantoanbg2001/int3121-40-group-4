@@ -1,0 +1,12 @@
+import 'dart:convert';
+import 'package:convershark/helpers/constains/api.constains.dart';
+import 'package:convershark/models/api_response.model.dart';
+import 'config/config.api.dart';
+
+Future<ApiResponse> createChatChannel(
+    String chatChannelName, String serverId) async {
+  final response = await ApiClient()
+      .post(API_CHAT_CHANNELS, {"name": chatChannelName, "serverId": serverId});
+  ApiResponse apiResponse = ApiResponse.fromJson(jsonDecode(response.body));
+  return apiResponse;
+}

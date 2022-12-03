@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:app/screens/icons/my_flutter_app_icons.dart';
-import 'package:app/utils/colors.dart';
-import 'package:app/widgets/friend_item.dart';
+import 'package:convershark/screens/icons/my_flutter_app_icons.dart';
+import 'package:convershark/widgets/friend_item.dart';
 import 'package:flutter/material.dart';
+import 'package:convershark/helpers/constains/colors.dart';
 
 class FriendScreen extends StatefulWidget {
   const FriendScreen({super.key});
@@ -47,7 +47,8 @@ class _FriendScreen extends State<FriendScreen> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: friendHeaderColor,
-          shape: const Border(bottom: BorderSide(color: blackColor, width: 1)),
+          shape: const Border(
+              bottom: BorderSide(color: friendBorderColor, width: 0.5)),
           elevation: 0,
           title: const Text("Bạn bè",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
