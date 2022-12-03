@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:convershark/screens/icons/my_flutter_app_icons.dart';
 import 'package:convershark/widgets/friend_item.dart';
 import 'package:flutter/material.dart';
 import 'package:convershark/helpers/constains/colors.dart';
@@ -50,17 +49,16 @@ class _FriendScreen extends State<FriendScreen> {
           shape: const Border(
               bottom: BorderSide(color: friendBorderColor, width: 0.5)),
           elevation: 0,
-          title: const Text("Bạn bè",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          title: const Text("Bạn bè", style: TextStyle(fontSize: 20)),
           centerTitle: false,
           actions: <Widget>[
             IconButton(
               onPressed: () {},
-              icon: const Icon(MyFlutterApp.message_, color: friendIconColor),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.person_add_alt_1, color: friendIconColor),
+              icon: const Icon(
+                Icons.person_add_alt_1,
+                color: friendIconColor,
+                size: 20,
+              ),
             ),
           ],
         ),
@@ -84,7 +82,7 @@ class _FriendScreen extends State<FriendScreen> {
                           Text(
                             "TRỰC TUYẾN - ${friendListOnline.length}",
                             style: const TextStyle(
-                                fontSize: 13,
+                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: friendTextColor),
                           ),
@@ -109,7 +107,7 @@ class _FriendScreen extends State<FriendScreen> {
                               Text(
                                 "NGOẠI TUYẾN - ${friendList.length - friendListOnline.length}",
                                 style: const TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                     color: friendTextColor),
                               ),

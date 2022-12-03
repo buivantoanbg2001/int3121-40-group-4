@@ -1,7 +1,7 @@
 import "dart:math";
 
 const List<String> avatarList = [
-  "https://www.simplilearn.com/ice9/free_resources_article_thumb/what_is_image_Processing.jpg",
+  "https://imgv3.fotor.com/images/blog-cover-image/Image-Upscaler-2.jpg",
   "https://images.all-free-download.com/images/graphiclarge/beautiful_natural_scenery_553758.jpg",
   "https://images.unsplash.com/photo-1509043759401-136742328bb3?ixlib=rb-4.0.3&w=1080&fit=max&q=80&fm=jpg&crop=entropy&cs=tinysrgb",
   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsc__e1wcloHuZ_h8fTwvuTrUvwh2i9vnazOohN27w-AZU-JrNJQRuGC7PJgVPTffUNec&usqp=CAU",

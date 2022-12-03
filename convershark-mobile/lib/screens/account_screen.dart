@@ -112,7 +112,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         style: TextStyle(
                           color: accountSecondaryTextColor,
                           fontSize: 24,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.bold,
                         ),
                       )
                     ],

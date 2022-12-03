@@ -1,6 +1,6 @@
+import 'package:convershark/helpers/constains/colors.dart';
 import 'package:convershark/widgets/notification_item.dart';
 import 'package:flutter/material.dart';
-import '../../helpers/constains/colors.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -20,11 +20,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
         elevation: 0,
         title: const Text(
           "Thông báo",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 20),
         ),
       ),
       backgroundColor: notificationBodyColor,
-      body: Container(
+      body: SizedBox(
         width: double.infinity,
         child: SafeArea(
           child: ListView.builder(

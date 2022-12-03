@@ -1,10 +1,8 @@
-import 'package:convershark/screens/account/account_screen.dart';
-import 'package:convershark/screens/channel/channel_screen.dart';
-import 'package:convershark/screens/chat/chat_screen.dart';
-import 'package:convershark/screens/friend/friend_screen.dart';
-import 'package:convershark/screens/notification/notification_screen.dart';
+import 'package:convershark/screens/account_screen.dart';
+import 'package:convershark/screens/channel_screen.dart';
+import 'package:convershark/screens/friend_screen.dart';
+import 'package:convershark/screens/notification_screen.dart';
 import 'package:convershark/helpers/constains/colors.dart';
-import 'package:convershark/helpers/overlapping_panels.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,18 +13,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreen extends State<HomeScreen> {
-  bool _isHideBottomNavigation = true;
   int _selectedTabIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     void onTabSelected(int index) {
-      if (index == 0) {
-        setState(() {
-          _isHideBottomNavigation = true;
-        });
-      }
-
       if (index != 2) {
         setState(() {
           _selectedTabIndex = index;
@@ -83,25 +74,7 @@ class _HomeScreen extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: statusBarColor,
       body: _selectedTabIndex == 0
-          ? OverlappingPanels(
-              left: Builder(builder: (context) {
-                return const ChannelScreen();
-              }),
-              main: Builder(
-                builder: (context) {
-                  return const ChatScreen();
-                },
-              ),
-              onSideChange: (side) {
-                setState(() {
-                  if (side == RevealSide.main) {
-                    _isHideBottomNavigation = true;
-                  } else if (side == RevealSide.left) {
-                    _isHideBottomNavigation = false;
-                  }
-                });
-              },
-            )
+          ? const ChannelScreen()
           : _selectedTabIndex == 1
               ? const FriendScreen()
               : _selectedTabIndex == 2
@@ -110,7 +83,7 @@ class _HomeScreen extends State<HomeScreen> {
                       ? const NotificationScreen()
                       : const AccountScreen(),
       bottomNavigationBar: SizedBox(
-        height: _isHideBottomNavigation ? 0 : 60,
+        height: 60,
         child: BottomNavigationBar(
           elevation: 0,
           type: BottomNavigationBarType.fixed,

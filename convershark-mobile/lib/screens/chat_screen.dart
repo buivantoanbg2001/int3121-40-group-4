@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:convershark/helpers/constains/colors.dart';
+import 'package:convershark/models/chat_channel.model.dart';
 import 'package:convershark/widgets/chat_item.dart';
 import 'package:flutter/material.dart';
-import '../../helpers/overlapping_panels.dart';
 
 class Chat {
   final String avatar;
@@ -20,7 +20,9 @@ class Chat {
 }
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final ChatChannel channel;
+
+  const ChatScreen({super.key, required this.channel});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -62,24 +64,20 @@ class _ChatScreenState extends State<ChatScreen> {
             leading: IconButton(
               icon: const Icon(Icons.menu, color: chatIconColor),
               onPressed: () {
-                if (OverlappingPanels.of(context)?.translate == 0) {
-                  OverlappingPanels.of(context)?.reveal(RevealSide.left);
-                } else {
-                  OverlappingPanels.of(context)?.reveal(RevealSide.main);
-                }
+                Navigator.pop(context);
               },
             ),
             title: Row(
-              children: const [
-                Icon(
+              children: [
+                const Icon(
                   Icons.tag,
                   color: chatIconSecondaryColor,
                   size: 20,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
-                  "kênh-công-chúa",
-                  style: TextStyle(fontSize: 16),
+                  widget.channel.name,
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
@@ -124,7 +122,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     style: const TextStyle(color: whiteColor),
                     controller: chatController,
                     decoration: InputDecoration(
-                      hintText: "Nhắn #kênh-công-chúa",
+                      hintText: "Nhắn ${widget.channel.name}",
                       hintStyle: const TextStyle(color: chatTextSecondaryColor),
                       filled: true,
                       fillColor: chatBackgroundWidgetColor,

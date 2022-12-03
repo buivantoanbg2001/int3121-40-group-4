@@ -1,4 +1,3 @@
-import 'package:convershark/screens/icons/my_flutter_app_icons.dart';
 import 'package:convershark/helpers/constains/colors.dart';
 import "package:flutter/material.dart";
 
@@ -30,7 +29,7 @@ class _FriendItemWidgetState extends State<FriendItemWidget> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(children: [
           CircleAvatar(
-              radius: 28,
+              radius: 24,
               backgroundImage: NetworkImage(widget.avatar),
               child: Stack(children: [
                 Align(
@@ -49,44 +48,17 @@ class _FriendItemWidgetState extends State<FriendItemWidget> {
                     Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                       Text(
                         widget.name,
-                        style: const TextStyle(
-                            color: whiteColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700),
+                        style: const TextStyle(color: whiteColor, fontSize: 16),
                       ),
                     ]),
-                    const SizedBox(height: 8),
                     Text(
                       widget.status,
-                      style: const TextStyle(
-                          color: friendTextColor,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500),
+                      style:
+                          const TextStyle(color: friendTextColor, fontSize: 12),
                     )
                   ]),
             ],
           )),
-          ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.square(35),
-                shape: const CircleBorder(),
-                padding: const EdgeInsets.all(5),
-                backgroundColor: friendButtonBackgroundColor,
-              ),
-              child: const Icon(MyFlutterApp.call,
-                  color: friendIconColor, size: 16)),
-          const SizedBox(width: 12),
-          ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.square(35),
-                shape: const CircleBorder(),
-                padding: const EdgeInsets.all(5),
-                backgroundColor: friendButtonBackgroundColor,
-              ),
-              child: const Icon(Icons.messenger,
-                  color: friendIconColor, size: 16)),
         ]));
   }
 }

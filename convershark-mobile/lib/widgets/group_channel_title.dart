@@ -30,7 +30,7 @@ class GroupChannelTitleWidget extends StatelessWidget {
                 name,
                 style: const TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.bold,
                     color: channelIconColor),
               ),
             ),

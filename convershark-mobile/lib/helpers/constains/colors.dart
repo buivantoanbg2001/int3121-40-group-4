@@ -43,6 +43,7 @@ const chatBodyColor = Color(0XFF383840);
 const chatBackgroundWidgetColor = Color(0XFF2a2b2f);
 const chatTextSecondaryColor = Color(0xFF78797e);
 const chatTextDateColor = Color(0xFFa4a4ac);
+const chatTextChooseChatChannelColor = Color(0xFF919297);
 
 // Account Screen
 const accountIconColor = Color(0XFF8a8b90);
@@ -60,10 +61,10 @@ const channelIconAddColor = Color(0xFF4aa46e);
 const friendBorderColor = Color(0xFF27272f);
 const friendStatusOnlineColor = Color.fromARGB(244, 0, 255, 0);
 const friendStatusOfflineColor = Color(0xFF808185);
-const friendTextColor = Color(0xFF808185);
+const friendTextColor = Color(0xFF919297);
 const friendButtonBackgroundColor = Color(0XFF1D1E21);
-const friendIconColor = Color(0xFF808185);
-const friendBackgroundColor = Color(0XFF303136);
+const friendIconColor = Color(0xFF919297);
+const friendBackgroundColor = Color(0XFF383840);
 const friendHeaderColor = Color(0XFF303136);
 
 // Notification Screen

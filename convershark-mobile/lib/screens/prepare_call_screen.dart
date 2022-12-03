@@ -1,5 +1,5 @@
-import 'package:convershark/screens/call/call_screen.dart';
-import 'package:convershark/screens/channel/channel_screen.dart';
+import 'package:convershark/screens/call_screen.dart';
+import 'package:convershark/screens/channel_screen.dart';
 import 'package:convershark/helpers/constains/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';

@@ -1,7 +1,7 @@
 import 'package:convershark/helpers/api/auth.api.dart';
 import 'package:convershark/models/user.model.dart';
 import 'package:convershark/models/auth.model.dart';
-import 'package:convershark/screens/home/home_screen.dart';
+import 'package:convershark/screens/home_screen.dart';
 import 'package:convershark/helpers/constains/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
