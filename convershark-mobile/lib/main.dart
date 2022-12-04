@@ -1,3 +1,4 @@
+import 'package:convershark/models/user.model.dart';
 import 'package:convershark/redux/app_state.dart';
 import 'package:convershark/redux/reducers.dart';
 import 'package:convershark/screens/welcome_screen.dart';
@@ -18,8 +19,8 @@ void main() async {
   // open the box
   await Hive.openBox("storageBox");
 
-  final Store<AppState> store =
-      Store(reducer, initialState: AppState(selectedServer: -1));
+  final Store<AppState> store = Store(reducer,
+      initialState: AppState(me: UserModel.sample(), selectedServer: 0));
 
   runApp(StoreProvider(store: store, child: const Convershark()));
 }
@@ -31,7 +32,7 @@ class Convershark extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Welcome Discord',
+      title: 'Welcome Convershark',
       theme: ThemeData(
         primaryColor: kPrimaryColor,
         textTheme: GoogleFonts.kanitTextTheme(

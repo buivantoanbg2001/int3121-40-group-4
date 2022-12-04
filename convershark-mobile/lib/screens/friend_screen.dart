@@ -1,9 +1,11 @@
-import 'dart:convert';
 import 'package:convershark/helpers/api/notifications.api.dart';
 import 'package:convershark/models/api_response.model.dart';
+import 'package:convershark/models/friend.model.dart';
+import 'package:convershark/redux/app_state.dart';
 import 'package:convershark/widgets/friend_item.dart';
 import 'package:flutter/material.dart';
 import 'package:convershark/helpers/constains/colors.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class FriendScreen extends StatefulWidget {
@@ -13,37 +15,8 @@ class FriendScreen extends StatefulWidget {
   State<FriendScreen> createState() => _FriendScreen();
 }
 
-class Friend {
-  final String avatar;
-  final String name;
-  final String status;
-  final String iconCall;
-  final String iconMessage;
-
-  Friend(this.avatar, this.name, this.status, this.iconCall, this.iconMessage);
-
-  Friend.fromJson(Map<String, dynamic> json)
-      : avatar = json['avatar'],
-        name = json['name'],
-        status = json['status'],
-        iconCall = json['iconCall'],
-        iconMessage = json['iconMessage'];
-}
-
 class _FriendScreen extends State<FriendScreen> {
   TextEditingController friendUidController = TextEditingController();
-
-  List<Friend> friendList = (jsonDecode(
-              '[{"avatar":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwCZE-3NGtzDSPHzbwo_9FyPvfkCwAVWbW6Q&usqp=CAU","name":"akameneko","status":"online","iconCall":"Icon(MyFlutterApp.call)","iconMessage":"Icon(Icons.messenger)"},{"avatar":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwCZE-3NGtzDSPHzbwo_9FyPvfkCwAVWbW6Q&usqp=CAU","name":"Nero","status":"online","iconCall":"Icon(MyFlutterApp.call)","iconMessage":"Icon(Icons.messenger)"},{"avatar":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwCZE-3NGtzDSPHzbwo_9FyPvfkCwAVWbW6Q&usqp=CAU","name":"Rix","status":"offline","iconCall":"Icon(MyFlutterApp.call)","iconMessage":"Icon(Icons.messenger)"}]')
-          as List)
-      .map((item) => Friend.fromJson(item))
-      .toList();
-
-  List<Friend> friendListOnline = (jsonDecode(
-              '[{"avatar":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwCZE-3NGtzDSPHzbwo_9FyPvfkCwAVWbW6Q&usqp=CAU","name":"akameneko","status":"online","iconCall":"Icon(MyFlutterApp.call)","iconMessage":"Icon(Icons.messenger)"},{"avatar":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwCZE-3NGtzDSPHzbwo_9FyPvfkCwAVWbW6Q&usqp=CAU","name":"Nero","status":"online","iconCall":"Icon(MyFlutterApp.call)","iconMessage":"Icon(Icons.messenger)"}]')
-          as List)
-      .map((item) => Friend.fromJson(item))
-      .toList();
 
   @override
   void dispose() {
@@ -71,7 +44,7 @@ class _FriendScreen extends State<FriendScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: whiteColor,
-                  fontSize: 26,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -125,24 +98,23 @@ class _FriendScreen extends State<FriendScreen> {
                       borderRadius: BorderRadius.circular(4)),
                 ),
                 onPressed: () async {
-                  // final String uid = friendUidController.text;
-                  // ApiResponse apiResponse =
-                  //     await inviteFriend("638b95320daa8ec35d370593");
+                  final String uid = friendUidController.text;
+                  ApiResponse apiResponse = await inviteFriend(uid);
 
-                  // if (apiResponse.isSuccess) {
-                  //   if (!mounted) return;
-                  //   Navigator.pop(context);
+                  if (apiResponse.isSuccess) {
+                    if (!mounted) return;
+                    Navigator.pop(context);
 
-                  //   Fluttertoast.showToast(
-                  //     msg: apiResponse.payload.message,
-                  //     toastLength: Toast.LENGTH_SHORT,
-                  //     timeInSecForIosWeb: 1,
-                  //     backgroundColor: signinLoginButtonColor,
-                  //     textColor: whiteColor,
-                  //   );
+                    Fluttertoast.showToast(
+                      msg: apiResponse.payload.message,
+                      toastLength: Toast.LENGTH_SHORT,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: signinLoginButtonColor,
+                      textColor: whiteColor,
+                    );
 
-                  //   friendUidController.clear();
-                  // }
+                    friendUidController.clear();
+                  }
                 },
                 child: const Text('Gửi Yêu Cầu Kết Bạn'),
               ),
@@ -156,88 +128,88 @@ class _FriendScreen extends State<FriendScreen> {
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: friendHeaderColor,
-          shape: const Border(
-              bottom: BorderSide(color: friendBorderColor, width: 0.5)),
-          elevation: 0,
-          title: const Text("Bạn bè", style: TextStyle(fontSize: 20)),
-          centerTitle: false,
-          actions: <Widget>[
-            IconButton(
-              onPressed: () => showBottomSheetAddFriend(context),
-              icon: const Icon(
-                Icons.person_add_alt_1,
-                color: friendIconColor,
-                size: 20,
+    return StoreConnector<AppState, AppState>(
+        converter: (store) => store.state,
+        builder: (context, vm) {
+          List<FriendModel> friendListOnline =
+              vm.me.friends.where((i) => i.status == "Online").toList();
+          List<FriendModel> friendList = friendListOnline +
+              vm.me.friends.where((i) => i.status == "Offline").toList();
+
+          return Scaffold(
+              appBar: AppBar(
+                backgroundColor: friendHeaderColor,
+                shape: const Border(
+                    bottom: BorderSide(color: friendBorderColor, width: 0.5)),
+                elevation: 0,
+                title: const Text("Bạn bè", style: TextStyle(fontSize: 20)),
+                centerTitle: false,
+                actions: <Widget>[
+                  IconButton(
+                    onPressed: () => showBottomSheetAddFriend(context),
+                    icon: const Icon(
+                      Icons.person_add_alt_1,
+                      color: friendIconColor,
+                      size: 20,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        body: Column(children: <Widget>[
-          Expanded(
-            child: Container(
-                color: friendBackgroundColor,
-                width: screenSize.width,
-                child: ListView.builder(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-                  itemCount: friendList.length,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return SizedBox(
-                          child: Column(children: <Widget>[
-                        SizedBox(
-                            child: Row(children: [
-                          const SizedBox(width: 16),
-                          Text(
-                            "TRỰC TUYẾN - ${friendListOnline.length}",
-                            style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: friendTextColor),
-                          ),
-                        ])),
-                        FriendItemWidget(
-                          avatar: friendList[index].avatar,
-                          name: friendList[index].name,
-                          status: friendList[index].status,
-                        )
-                      ]));
-                    }
-                    if (index == friendListOnline.length) {
-                      return SizedBox(
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                            SizedBox(
-                                child: Row(children: [
-                              const SizedBox(width: 16),
-                              Text(
-                                "NGOẠI TUYẾN - ${friendList.length - friendListOnline.length}",
-                                style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: friendTextColor),
-                              ),
-                            ])),
-                            FriendItemWidget(
-                              avatar: friendList[index].avatar,
-                              name: friendList[index].name,
-                              status: friendList[index].status,
-                            )
-                          ]));
-                    }
-                    return FriendItemWidget(
-                      avatar: friendList[index].avatar,
-                      name: friendList[index].name,
-                      status: friendList[index].status,
-                    );
-                  },
-                )),
-          ),
-        ]));
+              body: Column(children: <Widget>[
+                Expanded(
+                  child: Container(
+                      color: friendBackgroundColor,
+                      width: screenSize.width,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 0, vertical: 12),
+                        itemCount: friendList.length,
+                        scrollDirection: Axis.vertical,
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return SizedBox(
+                                child: Column(children: <Widget>[
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                  child: Row(children: [
+                                const SizedBox(width: 16),
+                                Text(
+                                  "TRỰC TUYẾN - ${friendListOnline.length}",
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: friendTextColor),
+                                ),
+                              ])),
+                              FriendItemWidget(friend: friendList[index])
+                            ]));
+                          }
+                          if (index == friendListOnline.length) {
+                            return SizedBox(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                      child: Row(children: [
+                                    const SizedBox(width: 16),
+                                    Text(
+                                      "NGOẠI TUYẾN - ${friendList.length - friendListOnline.length}",
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: friendTextColor),
+                                    ),
+                                  ])),
+                                  FriendItemWidget(friend: friendList[index])
+                                ]));
+                          }
+                          return FriendItemWidget(friend: friendList[index]);
+                        },
+                      )),
+                ),
+              ]));
+        });
   }
 }

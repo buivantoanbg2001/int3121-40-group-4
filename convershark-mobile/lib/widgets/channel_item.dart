@@ -9,7 +9,7 @@ enum ChannelItemType { callVideo, chat }
 class ChannelItemWidget extends StatelessWidget {
   final int index;
   final ChannelItemType type;
-  final ChatChannel channel;
+  final ChatChannelModel channel;
 
   const ChannelItemWidget({
     Key? key,

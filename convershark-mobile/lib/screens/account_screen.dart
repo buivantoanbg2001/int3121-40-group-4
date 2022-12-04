@@ -1,7 +1,13 @@
 import 'package:convershark/helpers/constains/colors.dart';
+import 'package:convershark/redux/app_state.dart';
+import 'package:convershark/screens/welcome_screen.dart';
 import 'package:convershark/widgets/account_item.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:hive/hive.dart';
+
+final storageBox = Hive.box("storageBox");
 
 class AccountItem {
   final IconData iconData;
@@ -35,25 +41,29 @@ class _AccountScreenState extends State<AccountScreen> {
     }
 
     List<AccountItem> accountItemList = [
-      AccountItem(Icons.manage_accounts, "Cài đặt trạng thái", true,
-          () => showToast("Cài đặt trạng thái"), []),
-      AccountItem(Icons.account_box, "Tài khoản", true,
-          () => showToast("Tài khoản"), []),
-      AccountItem(Icons.edit, "Hồ sơ người dùng", true,
-          () => showToast("Hồ sơ người dùng"), []),
-      AccountItem(
-          Icons.output, "Đăng xuất", false, () => showToast("Đăng xuất"), [])
+      AccountItem(Icons.account_box, "Tài Khoản Người Dùng", true,
+          () => showToast("Tài Khoản Người Dùng"), []),
+      AccountItem(Icons.output, "Đăng xuất", false, () {
+        storageBox.delete("accessToken");
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+          (route) => false,
+        );
+      }, [])
     ];
 
     return Scaffold(
       body: Container(
         color: statusBarColor,
         child: SafeArea(
-          child: Stack(children: <Widget>[
+            child: StoreConnector<AppState, AppState>(
+          converter: (store) => store.state,
+          builder: (context, vm) => Stack(children: <Widget>[
             Column(
               children: [
-                Image.asset(
-                  "assets/images/wallpaper.jpg",
+                Image.network(
+                  vm.me.wallpaper,
                   height: 110,
                   width: screenSize.width,
                   fit: BoxFit.cover,
@@ -88,28 +98,28 @@ class _AccountScreenState extends State<AccountScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 45,
                     backgroundColor: blackColor,
                     child: CircleAvatar(
-                      backgroundImage: AssetImage('assets/images/avatar.jpg'),
+                      backgroundImage: NetworkImage(vm.me.avatar),
                       radius: 39,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Row(
-                    children: const <Widget>[
+                    children: <Widget>[
                       Text(
-                        "OMan",
-                        style: TextStyle(
+                        vm.me.name,
+                        style: const TextStyle(
                             color: whiteColor,
                             fontSize: 24,
                             fontWeight: FontWeight.w900),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
-                        "#2307",
-                        style: TextStyle(
+                        "#${vm.me.uid.split("#").last}",
+                        style: const TextStyle(
                           color: accountSecondaryTextColor,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -121,7 +131,7 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
             ),
           ]),
-        ),
+        )),
       ),
     );
   }

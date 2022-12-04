@@ -1,6 +1,10 @@
+import 'package:convershark/helpers/api/notifications.api.dart';
+import 'package:convershark/helpers/api/users.api.dart';
 import 'package:convershark/helpers/constains/colors.dart';
+import 'package:convershark/models/api_response.model.dart';
 import 'package:convershark/models/notification.model.dart';
 import "package:flutter/material.dart";
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 class NotificationItemWidget extends StatefulWidget {
@@ -18,7 +22,45 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget> {
   bool isResponse = false;
   bool isAccept = false;
 
-  void handleResponse(NotificationType type, bool isAccept) {}
+  void handleResponse(
+      NotificationType type, bool isAccept, bool isResponse) async {
+    ApiResponse res =
+        await updateNotifications(widget.data.id, isAccept, isResponse);
+
+    if (isAccept && res.isSuccess) {
+      switch (type) {
+        case NotificationType.FRIEND:
+          {
+            ApiResponse updateFriendResponse =
+                await updateFriendsBoth(widget.data.sender.id);
+            if (updateFriendResponse.isSuccess) {
+              Fluttertoast.showToast(
+                msg: updateFriendResponse.payload.message,
+                toastLength: Toast.LENGTH_SHORT,
+                timeInSecForIosWeb: 1,
+                backgroundColor: signinLoginButtonColor,
+                textColor: whiteColor,
+              );
+            }
+            break;
+          }
+        case NotificationType.SERVER:
+          {
+            break;
+          }
+        case NotificationType.CHAT:
+          {
+            break;
+          }
+        case NotificationType.CALL:
+          {
+            break;
+          }
+        default:
+          break;
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +190,8 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget> {
                                           isResponse = true;
                                           isAccept = true;
                                         });
-                                        handleResponse(widget.data.type, true);
+                                        handleResponse(
+                                            widget.data.type, true, true);
                                       },
                                       child: const Text('Chấp nhận'),
                                     ),
@@ -171,7 +214,8 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget> {
                                           isResponse = true;
                                           isAccept = false;
                                         });
-                                        handleResponse(widget.data.type, false);
+                                        handleResponse(
+                                            widget.data.type, false, true);
                                       },
                                       child: const Text('Từ chối'),
                                     ),

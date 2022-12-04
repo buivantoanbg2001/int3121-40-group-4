@@ -1,4 +1,4 @@
-class Friend {
+class FriendModel {
   final String id;
   final String uid;
   final String status;
@@ -7,7 +7,7 @@ class Friend {
   final String bio;
   final String createdAt;
 
-  const Friend({
+  const FriendModel({
     required this.id,
     required this.uid,
     required this.status,
@@ -17,8 +17,8 @@ class Friend {
     required this.createdAt,
   });
 
-  factory Friend.fromJson(Map<String, dynamic> json) {
-    return Friend(
+  factory FriendModel.fromJson(Map<String, dynamic> json) {
+    return FriendModel(
       id: json['_id'],
       uid: json['_uid'],
       status: json['status'],

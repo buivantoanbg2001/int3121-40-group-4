@@ -1,16 +1,13 @@
 import 'package:convershark/helpers/constains/colors.dart';
+import 'package:convershark/models/friend.model.dart';
 import "package:flutter/material.dart";
 
 class FriendItemWidget extends StatefulWidget {
-  final String avatar;
-  final String name;
-  final String status;
+  final FriendModel friend;
 
   const FriendItemWidget({
     Key? key,
-    required this.avatar,
-    required this.name,
-    required this.status,
+    required this.friend,
   }) : super(key: key);
 
   @override
@@ -25,12 +22,12 @@ class _FriendItemWidgetState extends State<FriendItemWidget> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(children: [
           CircleAvatar(
-              radius: 24,
-              backgroundImage: NetworkImage(widget.avatar),
+              radius: 20,
+              backgroundImage: NetworkImage(widget.friend.avatar),
               child: Stack(children: [
                 Align(
                   alignment: Alignment.bottomRight,
-                  child: getWidget(widget.status),
+                  child: getWidget(widget.friend.status),
                 )
               ])),
           const SizedBox(width: 12),
@@ -43,12 +40,14 @@ class _FriendItemWidgetState extends State<FriendItemWidget> {
                   children: [
                     Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                       Text(
-                        widget.name,
+                        widget.friend.uid,
                         style: const TextStyle(color: whiteColor, fontSize: 14),
                       ),
                     ]),
                     Text(
-                      widget.status,
+                      widget.friend.status == "Online"
+                          ? "Trực tuyến"
+                          : "Ngoại tuyến",
                       style:
                           const TextStyle(color: friendTextColor, fontSize: 12),
                     )
@@ -60,7 +59,7 @@ class _FriendItemWidgetState extends State<FriendItemWidget> {
 }
 
 Widget getWidget(String status) {
-  if (status == "online") {
+  if (status == "Online") {
     return const CircleAvatar(
         radius: 8,
         backgroundColor: chatBodyColor,

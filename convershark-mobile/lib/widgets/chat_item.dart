@@ -1,20 +1,12 @@
 import 'package:convershark/helpers/constains/colors.dart';
+import 'package:convershark/models/message.model.dart';
 import "package:flutter/material.dart";
 import 'package:intl/intl.dart';
 
 class ChatItemWidget extends StatefulWidget {
-  final String avatar;
-  final String name;
-  final String message;
-  final String createdAt;
+  final MessageModel message;
 
-  const ChatItemWidget(
-      {Key? key,
-      required this.avatar,
-      required this.name,
-      required this.message,
-      required this.createdAt})
-      : super(key: key);
+  const ChatItemWidget({Key? key, required this.message}) : super(key: key);
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -31,7 +23,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       child: Row(children: [
         CircleAvatar(
           radius: 22,
-          backgroundImage: NetworkImage(widget.avatar),
+          backgroundImage: NetworkImage(widget.message.owner.avatar),
         ),
         const SizedBox(width: 12),
         Column(
@@ -40,7 +32,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           children: [
             Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Text(
-                widget.name,
+                widget.message.owner.name,
                 style: const TextStyle(
                     color: whiteColor,
                     fontSize: 16,
@@ -50,7 +42,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 1),
                 child: Text(
-                  inputFormat.format(DateTime.parse(widget.createdAt)),
+                  inputFormat.format(DateTime.parse(widget.message.createdAt)),
                   style: const TextStyle(
                     color: chatTextDateColor,
                     fontSize: 12,
@@ -60,7 +52,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ]),
             const SizedBox(height: 4),
             Text(
-              widget.message,
+              widget.message.content,
               style: const TextStyle(color: whiteColor),
             )
           ],

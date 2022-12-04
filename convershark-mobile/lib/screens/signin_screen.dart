@@ -142,6 +142,8 @@ class _SigninScreenState extends State<SigninScreen> {
                     child: TextField(
                       controller: passwordController,
                       obscureText: _obscureText ? true : false,
+                      enableSuggestions: false,
+                      autocorrect: false,
                       cursorColor: cursorColor,
                       style: const TextStyle(color: whiteColor),
                       decoration: InputDecoration(
@@ -159,7 +161,7 @@ class _SigninScreenState extends State<SigninScreen> {
                           ),
                         ),
                         suffixIcon: IconButton(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          // padding: const EdgeInsets.symmetric(horizontal: 16),
                           icon: Icon(
                             _obscureText
                                 ? Icons.visibility

@@ -5,7 +5,7 @@ class Server {
   final String id;
   final String hostId;
   final String name;
-  final List<ChatChannel> chatChannels;
+  final List<ChatChannelModel> chatChannels;
   final List<CallChannel> callChannels;
 
   final String createdAt;
@@ -25,7 +25,7 @@ class Server {
       hostId: json['hostId'],
       name: json['name'],
       chatChannels: (json['chatChannels'] as List)
-          .map((item) => ChatChannel.fromJson(item))
+          .map((item) => ChatChannelModel.fromJson(item))
           .toList(),
       callChannels: (json['callChannels'] as List)
           .map((item) => CallChannel.fromJson(item))

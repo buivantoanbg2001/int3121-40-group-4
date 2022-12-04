@@ -12,7 +12,7 @@ const API_AUTH_REGISTER = "/register";
 
 const API_USERS_ME = "/users/me/management";
 const API_USERS_U = "/users/u";
-const API_USERS_FRIENDS_UPDATE_BOTH = "/users/friends/update-both";
+const API_USERS_UPDATE_FRIENDS_BOTH = "/users/friends/update-both";
 
 const API_SERVERS = "/servers";
 
@@ -20,3 +20,5 @@ const API_CHAT_CHANNELS = "/chat-channels";
 const API_CALL_CHANNELS = "/call-channels";
 
 const API_NOTIFICATIONS = "/notifications";
+
+const API_MESSAGES = "/messages";

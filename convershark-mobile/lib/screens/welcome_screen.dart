@@ -27,7 +27,7 @@ class WelcomeScreen extends StatelessWidget {
                 child: Column(
                   children: const <Widget>[
                     Text(
-                      "Chào mừng bạn đến với Discord",
+                      "Chào mừng bạn đến với Convershark",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: whiteColor,
@@ -39,7 +39,7 @@ class WelcomeScreen extends StatelessWidget {
                       height: 12,
                     ),
                     Text(
-                      "Tham gia cùng hơn 100 triệu người dùng Discord và trò chuyện với bạn bè và các cộng đồng khác nhau.",
+                      "Tham gia và trò chuyện với bạn bè và các cộng đồng khác nhau trên Convershark.",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: welcomeSecondaryColor,
