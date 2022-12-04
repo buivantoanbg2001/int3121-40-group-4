@@ -5,16 +5,12 @@ class FriendItemWidget extends StatefulWidget {
   final String avatar;
   final String name;
   final String status;
-  final String iconCall;
-  final String iconMessage;
 
   const FriendItemWidget({
     Key? key,
     required this.avatar,
     required this.name,
     required this.status,
-    required this.iconCall,
-    required this.iconMessage,
   }) : super(key: key);
 
   @override
@@ -48,7 +44,7 @@ class _FriendItemWidgetState extends State<FriendItemWidget> {
                     Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                       Text(
                         widget.name,
-                        style: const TextStyle(color: whiteColor, fontSize: 16),
+                        style: const TextStyle(color: whiteColor, fontSize: 14),
                       ),
                     ]),
                     Text(

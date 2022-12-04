@@ -1,4 +1,6 @@
+import 'package:convershark/helpers/api/notifications.api.dart';
 import 'package:convershark/helpers/constains/colors.dart';
+import 'package:convershark/models/notification.model.dart';
 import 'package:convershark/widgets/notification_item.dart';
 import 'package:flutter/material.dart';
 
@@ -10,6 +12,14 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+  late Future<List<NotificationModel>> notifications;
+
+  @override
+  void initState() {
+    super.initState();
+    notifications = getNotifications();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,29 +37,41 @@ class _NotificationScreenState extends State<NotificationScreen> {
       body: SizedBox(
         width: double.infinity,
         child: SafeArea(
-          child: ListView.builder(
-              itemCount: 16,
-              scrollDirection: Axis.vertical,
-              itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    const NotificationItemWidget(
-                        serverName: "Clash Of Clans",
-                        channelName: "clan-battle",
-                        avatar:
-                            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwCZE-3NGtzDSPHzbwo_9FyPvfkCwAVWbW6Q&usqp=CAU",
-                        name: "Văn Toán",
-                        message: "Hello World",
-                        createdAt: "2022-10-20T10:10:10Z"),
-                    Divider(
-                      height: 20,
-                      thickness: index != 16 - 1 ? 1 : 0,
-                      endIndent: 20,
-                      color: notificationDividerColor,
-                    ),
-                  ],
+          child: FutureBuilder<List<NotificationModel>>(
+            future: notifications,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                List<NotificationModel> data = snapshot.data!;
+
+                return ListView.builder(
+                  itemCount: data.length,
+                  scrollDirection: Axis.vertical,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        NotificationItemWidget(data: data[index]),
+                        Divider(
+                          height: 20,
+                          endIndent: 20,
+                          color: index < data.length - 1
+                              ? notificationDividerColor
+                              : Colors.transparent,
+                        ),
+                      ],
+                    );
+                  },
                 );
-              }),
+              } else if (snapshot.hasError) {
+                return Text('${snapshot.error}');
+              }
+
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: welcomeRegisterButtonColor,
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

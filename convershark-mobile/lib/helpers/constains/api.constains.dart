@@ -18,3 +18,5 @@ const API_SERVERS = "/servers";
 
 const API_CHAT_CHANNELS = "/chat-channels";
 const API_CALL_CHANNELS = "/call-channels";
+
+const API_NOTIFICATIONS = "/notifications";
