@@ -11,12 +11,6 @@ export class CreateUserDto {
   email: string;
 
   @ApiProperty({ default: null, required: false })
-  phone?: string;
-
-  @ApiProperty({ required: false })
-  pwd?: string;
-
-  @ApiProperty({ default: null, required: false })
   status?: string;
 
   @ApiProperty({ default: null, required: false })

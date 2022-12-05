@@ -7,9 +7,9 @@ import {
   UseGuards,
   Req,
   Patch,
+  Get,
 } from '@nestjs/common';
-import { ServersService } from './servers.service';
-import { CreateServerDto } from './dto/create-server.dto';
+
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -19,55 +19,74 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+
 import { AuthGuard } from '@nestjs/passport';
 import ResponseData from 'src/utils/response-data';
-import { UpdateServerDto } from 'src/servers/dto/update-server.dto';
+import { ServersService } from './servers.service';
+import { CreateServerDto, UpdateServerDto } from './dto';
 
 @ApiTags('Servers')
 @ApiBearerAuth()
-@ApiForbiddenResponse({ description: 'Không có quyền truy cập' })
+@ApiForbiddenResponse({ description: 'Permission denied' })
 @UseGuards(AuthGuard('jwt'))
 @Controller('servers')
 export class ServersController {
   constructor(private readonly serversService: ServersService) {}
 
+  // CREATE A NEW SERVER
   @ApiOperation({
-    summary: 'Tạo server',
-    description: 'Tạo server',
+    summary: 'Create a new server',
+    description: 'Create a new server',
   })
-  @ApiOkResponse({ description: 'Tạo server thành công' })
-  @ApiBadRequestResponse({ description: 'Tạo server thất bại' })
+  @ApiOkResponse({ description: 'Create a new server successfully' })
+  @ApiBadRequestResponse({ description: 'Create a new server failed' })
   @Post()
-  create(@Req() req, @Body() createServerDto: CreateServerDto) {
-    const _id = req.user;
+  async create(@Req() req, @Body() createServerDto: CreateServerDto) {
+    const { _id } = req.user;
     createServerDto.hostId = _id;
     return this.serversService.create(createServerDto);
   }
 
+  // GET SERVER, MEMBER GET SERVER
   @ApiOperation({
-    summary: 'Cập nhật server',
-    description: 'Cập nhật server',
+    summary: 'Member get server information by ID',
+    description: 'Member get server information by ID',
   })
-  @ApiOkResponse({ description: 'Cập nhật server thành công' })
-  @ApiBadRequestResponse({ description: 'Cập nhật server thất bại' })
-  @Patch(':id')
-  async update(
-    @Req() request,
-    @Param('id') id: string,
-    @Body() updateServerDto: UpdateServerDto,
-  ) {
-    const { _id: hostId } = request.user;
-    await this.serversService.update(id, hostId, updateServerDto);
+  @ApiOkResponse({ description: 'Get server information successfully' })
+  @ApiBadRequestResponse({ description: 'Get server informationi failed' })
+  @Get(':id')
+  async get(@Req() req, @Param('id') serverId: string) {
+    const { _id } = req.user;
+    return this.serversService.getWithMemberId(serverId, _id.toString());
+  }
+
+  // FROM RECEIVER, AUTO UPDATE MEMBER LIST WHEN RECEIVER ACCEPTED
+  @ApiOperation({
+    summary: 'From receiver, auto updates member list of server by ID',
+    description: 'From receiver, auto updates member list of server by ID',
+  })
+  @ApiOkResponse({
+    description:
+      'From receiver, auto updates member list of server by ID successfully',
+  })
+  @ApiBadRequestResponse({
+    description:
+      'From receiver, auto updates member list of server by ID failed',
+  })
+  @Patch(':id/members')
+  async addNewMember(@Req() request, @Param('id') id: string) {
+    const { _id: userId } = request.user;
+    await this.serversService.updateMemberList(id, userId);
     return new ResponseData(
       true,
-      { message: 'Cập nhật server thành công' },
+      { message: 'Update member list successfully' },
       null,
     );
   }
 
   @ApiOperation({
-    summary: 'Xóa server',
-    description: 'Xóa server',
+    summary: 'Owner deletes a server by ID',
+    description: 'Owner deletes a server by ID',
   })
   @ApiOkResponse({ description: 'Successfully deleted server' })
   @ApiNotFoundResponse({ description: "Can't find server to delete" })
@@ -75,6 +94,10 @@ export class ServersController {
   async remove(@Req() req, @Param('id') serverId: string) {
     const { _id: hostId } = req.user;
     await this.serversService.remove(serverId, hostId);
-    return new ResponseData(true, { message: 'Xóa server thành công' }, null);
+    return new ResponseData(
+      true,
+      { message: 'Delete a server by ID successfully' },
+      null,
+    );
   }
 }

@@ -1,49 +1,45 @@
-import { Prop } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import mongoose from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Transform, Type } from 'class-transformer';
+import mongoose, { ObjectId, Document } from 'mongoose';
 import { CallChannel } from 'src/call_channels/schemas';
 import { ChatChannel } from 'src/chat_channels/schemas';
 import { Server } from 'src/servers/schemas';
 import { User } from 'src/users/schemas';
 
-export class CreateNotificationDto {
+export type NotificationDocument = Notification & Document;
+
+@Schema({ timestamps: true })
+export class Notification {
+  @Transform(({ value }) => value.toString())
+  _id: ObjectId;
+
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User' })
   @Type(() => User)
   sender: string;
 
-  @ApiProperty({ required: false })
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User' })
   @Type(() => User)
-  receiver?: string;
+  receiver: string;
 
-  @ApiProperty({ required: true })
   @Prop({ required: true })
   type: 'FRIEND' | 'MESSAGE' | 'SERVER' | 'CALL' | 'CHAT';
 
-  @ApiProperty({ required: false, default: false })
   @Prop({ required: false, default: false })
   isResponse: boolean;
 
-  @ApiProperty({ required: false, default: false })
   @Prop({ required: false, default: false })
   isAccept: boolean;
 
-  @ApiProperty({ required: false })
-  friendUID?: string;
-
-  @ApiProperty({ required: false })
   @Prop({ type: mongoose.Types.ObjectId, ref: 'Server' })
   @Type(() => Server)
-  serverId?: string;
+  serverId: string;
 
-  @ApiProperty({ required: false })
   @Prop({ type: mongoose.Types.ObjectId, ref: 'ChatChannel' })
   @Type(() => ChatChannel)
-  chatId?: string;
+  chatId: string;
 
-  @ApiProperty({ required: false })
   @Prop({ type: mongoose.Types.ObjectId, ref: 'CallChannel' })
   @Type(() => CallChannel)
-  callId?: string;
+  callId: string;
 }
+export const NotificationSchema = SchemaFactory.createForClass(Notification);

@@ -9,8 +9,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { NotificationsService } from './notifications.service';
-import { CreateNotificationDto } from './dto/create-notification.dto';
+
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -20,29 +19,33 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+
+import { NotificationsService } from './notifications.service';
+import { CreateNotificationDto } from './dto/create-notification.dto';
+
 import ResponseData from 'src/utils/response-data';
 
-@ApiTags('Thông báo')
+@ApiTags('Notifications')
 @ApiBearerAuth()
-@ApiForbiddenResponse({ description: 'Không có quyền truy cập' })
+@ApiForbiddenResponse({ description: 'Permisstion denied' })
 @UseGuards(AuthGuard('jwt'))
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @ApiOperation({
-    summary: 'Tạo một thông mới',
-    description: 'Tạo một thông báo mới',
+    summary: 'Create a new notification',
+    description: 'Create a new notification',
   })
-  @ApiOkResponse({ description: 'Tạo một thông báo mới thành công' })
-  @ApiBadRequestResponse({ description: 'Tạo một thông báo mới thất bại' })
+  @ApiOkResponse({ description: 'Create a new notification successfully' })
+  @ApiBadRequestResponse({ description: 'Create a new notification failed' })
   @Post()
   async create(
     @Req() req,
     @Body() createNotificationDto: CreateNotificationDto,
   ) {
     const { _id } = req.user;
-    createNotificationDto.sender = _id;
+    createNotificationDto.sender = _id.toString();
     const notification = await this.notificationsService.create(
       createNotificationDto,
     );
@@ -50,14 +53,14 @@ export class NotificationsController {
   }
 
   @ApiOperation({
-    summary: 'Lấy ra tất cả thông báo của người dùng',
-    description: 'Lấy ra tất cả thông báo của người dùng',
+    summary: 'Retrieve all your notifications',
+    description: 'Retrieve all your notifications',
   })
   @ApiOkResponse({
-    description: 'Lấy ra tất cả thông báo của người dùng thành công',
+    description: 'Retrieve all your notifications successfully',
   })
   @ApiBadRequestResponse({
-    description: 'Lấy ra tất cả thông báo của người dùng thất bại',
+    description: 'Retrieve all your notifications denied',
   })
   @Get()
   async getAllForReceiver(@Req() req) {
@@ -66,16 +69,18 @@ export class NotificationsController {
   }
 
   @ApiOperation({
-    summary: 'Tìm kiếm và lấy ra một thông báo theo ID, có xác thực người nhận',
+    summary:
+      'Search and retrieve a message by ID, with recipient authentication',
     description:
-      'Tìm kiếm và lấy ra một thông báo theo ID, có xác thực người nhận',
+      'Search and retrieve a message by ID, with recipient authentication',
   })
   @ApiOkResponse({
     description:
-      'Thành công lấy ra một thông báo theo ID, có xác thực người nhận',
+      'Successfully retrieved a message by ID, with recipient authentication',
   })
   @ApiBadRequestResponse({
-    description: 'Lỗi khi lấy ra một thông báo theo ID, có xác thực người nhận',
+    description:
+      'Error retrieving a message by ID, with recipient authentication',
   })
   @Get(':id')
   async getOnebyId(@Req() req, @Param('id') _notiId: string) {
@@ -84,14 +89,14 @@ export class NotificationsController {
   }
 
   @ApiOperation({
-    summary: 'Xóa một thông báo theo ID, có xác thực người nhận xóa',
-    description: 'Xóa một thông báo theo ID, có xác thực người nhận xóa',
+    summary: 'Owner deletes a notification by ID',
+    description: 'Owner deletes a notification by ID',
   })
   @ApiOkResponse({
-    description: 'Xóa thành công',
+    description: 'Delete successfully',
   })
   @ApiBadRequestResponse({
-    description: 'Xóa thất bại',
+    description: 'Delete failed',
   })
   @Delete(':id')
   async remove(@Req() req, @Param('id') _notiId: string) {
@@ -99,7 +104,7 @@ export class NotificationsController {
     await this.notificationsService.remove(_notiId, _id.toString());
     return new ResponseData(
       true,
-      { message: 'Xóa tin thông báo thành công' },
+      { message: 'Delete notification successfully' },
       null,
     );
   }

@@ -8,8 +8,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UpdateUserDto } from './dto/update-user.dto';
+
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -19,50 +18,74 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ShortUserInfo } from 'src/schemas/user.schema';
+
 import { AuthGuard } from '@nestjs/passport';
+
+import { UsersService } from './users.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ShortUserInfo } from './schemas';
+
 import ResponseData from 'src/utils/response-data';
 
-@ApiTags('Người dùng')
+@ApiTags('User')
 @ApiBearerAuth()
-@ApiForbiddenResponse({ description: 'Không có quyền truy cập' })
+@ApiForbiddenResponse({ description: 'Permission denied' })
 @UseGuards(AuthGuard('jwt'))
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({
-    summary: 'Lấy toàn bộ thông tin người dùng đang đăng nhập',
-    description: 'Lấy toàn bộ thông tin người dùng đang đăng nhập',
+    summary: 'Retrieve all the information of the logged in user',
+    description: 'Retrieve all the information of the logged in user',
   })
   @ApiOkResponse({
-    description: 'Lấy toàn bộ thông tin người dùng đang đăng nhập thành công',
+    description: 'Retrieve all your information successfully',
   })
   @ApiBadRequestResponse({
-    description: 'Lấy toàn bộ thông tin người dùng đang đăng nhập thất bại',
+    description: 'Retrieval of all your information failed',
   })
   @Get('me')
   async me(@Req() request) {
     const { _id } = request.user;
-    const user = await this.usersService.getFullUserInfoById(_id);
-    const { hashedPassword, ...userWithoutPassWord } = user;
-    return userWithoutPassWord;
+    const user = await this.usersService.getMe(_id);
+    const { hashedPassword, ...userInfo } = user;
+    return userInfo;
   }
 
   @ApiOperation({
-    summary: 'Lấy một phần thông tin người dùng',
-    description: 'Lấy một phần thông tin người dùng',
+    summary:
+      'Retrieve all the 2-levels information of the logged in user to manage them servers',
+    description:
+      'Retrieve all the 2-levels information of the logged in user to manage them servers',
   })
   @ApiOkResponse({
-    description: 'Lấy một phần thông tin người dùng thành công',
+    description: 'Retrieve all your 2-levels information successfully',
   })
   @ApiBadRequestResponse({
-    description: 'Lấy một phần thông tin người dùng thất bại',
+    description: 'Retrieval of all your 2-levels information failed',
   })
-  @ApiNotFoundResponse({ description: "The user's id doesn't exist" })
+  @Get('me/management')
+  async meAsHost(@Req() request) {
+    const { _id } = request.user;
+    const user = await this.usersService.getMeDeeper(_id);
+    const { hashedPassword, ...userInfo } = user;
+    return userInfo;
+  }
+
+  @ApiOperation({
+    summary: 'Retrieve all public information of users by ID',
+    description: 'Retrieve all public information of users by ID',
+  })
+  @ApiOkResponse({
+    description: 'Retrieve all public information of users by ID successfully',
+  })
+  @ApiBadRequestResponse({
+    description: 'Retrieve all public information of users by ID failed',
+  })
   @Get('u/:id')
-  async getUserbyObjId(@Param('id') id: string): Promise<ShortUserInfo> {
-    const user = await this.usersService.findUserByObjID(id);
+  async getByObjId(@Param('id') id: string): Promise<ShortUserInfo> {
+    const user = await this.usersService.findByObjID(id);
     if (!user) {
       throw new NotFoundException("The user's id doesn't exist");
     }
@@ -70,14 +93,14 @@ export class UsersController {
   }
 
   @ApiOperation({
-    summary: 'Cập nhật thông tin người dùng đang đăng nhập',
-    description: 'Cập nhật thông tin người dùng đang đăng nhập',
+    summary: 'Update logged in user information',
+    description: 'Update logged in user information',
   })
   @ApiOkResponse({
-    description: 'Cập nhật thông tin người dùng đang đăng nhập thành công',
+    description: 'Update logged in user information successfully',
   })
   @ApiBadRequestResponse({
-    description: 'Cập nhật thông tin người dùng đang đăng nhập thất bại',
+    description: 'Update logged in user information failed',
   })
   @Patch('me')
   async update(@Req() request, @Body() updateUserDto: UpdateUserDto) {
@@ -85,28 +108,34 @@ export class UsersController {
     await this.usersService.update(_id, updateUserDto);
     return new ResponseData(
       true,
-      { message: 'Cập nhật thông tin người dùng đang đăng nhập thành công' },
+      { message: 'Successfully updated information' },
       null,
     );
   }
 
   @ApiOperation({
-    summary: 'Thêm id vào danh sách bạn bè của user ngược lại',
+    summary: 'Add friends for both parties',
     description:
-      'Thêm id vào danh sách bạn bè của user và thêm user vào danh sách bạn bè của id',
+      "The recipient presses accept the invitation, using the link as the sender's id",
   })
   @ApiOkResponse({
-    description: 'Cập nhật danh sách bạn bè của cả 2 thành công',
+    description: 'Updating the friends list of both failed',
   })
   @ApiBadRequestResponse({
-    description: 'Cập nhật danh sách bạn bè của cả 2 thất bại',
+    description: 'Updating the friends list of both failed',
   })
   @Patch('friends/update-both/:id')
-  async updateFriendList(@Req() request, @Param('id') sender: string) {
-    const { _id: receiver } = request.user;
-    await this.usersService.updateFriendListById(receiver, sender);
-    await this.usersService.updateFriendListById(sender, receiver);
+  async updateFriendList(@Param('id') sender: string, @Req() request) {
+    const { _id } = request.user;
+    const senderId = await (
+      await this.usersService.findByObjID(sender)
+    )._id.toString();
+    if (!senderId) {
+      throw new NotFoundException("The user doesn't exist");
+    }
+    await this.usersService.updateFriendList(_id, senderId);
+    await this.usersService.updateFriendList(senderId, _id);
 
-    return new ResponseData(true, { message: 'Các bạn đã là bạn bè' }, null);
+    return new ResponseData(true, { message: 'You guys were friends' }, null);
   }
 }
