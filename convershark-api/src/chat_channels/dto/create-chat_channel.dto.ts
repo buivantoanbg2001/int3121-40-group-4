@@ -4,7 +4,6 @@ export class CreateChatChannelDto {
   @ApiProperty({ required: true })
   name: string;
 
-  @ApiProperty({ required: false })
   hostId?: string;
 
   @ApiProperty({ required: false })

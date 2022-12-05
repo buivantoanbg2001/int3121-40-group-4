@@ -1,13 +1,10 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  ChatChannel,
-  ChatChannelDocument,
-} from 'src/schemas/chat_channels.schema';
 import { ServersService } from 'src/servers/servers.service';
-import { CreateChatChannelDto } from './dto/create-chat_channel.dto';
-import { UpdateChatChannelDto } from './dto/update-chat_channel.dto';
+import { UsersService } from 'src/users/users.service';
+import { CreateChatChannelDto, UpdateChatChannelDto } from './dto';
+import { ChatChannel, ChatChannelDocument } from './schemas';
 
 @Injectable()
 export class ChatChannelsService {
@@ -15,99 +12,102 @@ export class ChatChannelsService {
     @InjectModel(ChatChannel.name)
     private chatChannelModel: Model<ChatChannelDocument>,
     private serversService: ServersService,
+    private usersService: UsersService,
   ) {}
 
+  // HOST ADD NEW CHANNEL
   async create(createChatChannelDto: CreateChatChannelDto) {
+    // only host can find server
     const { hostId, serverId } = createChatChannelDto;
-    const server = await this.serversService.findOne(serverId, hostId);
-
+    const server = await this.serversService.findWithHostId(serverId, hostId);
     if (!server) {
       return null;
     }
 
+    // create a new channel
     const chatChannel = new this.chatChannelModel(createChatChannelDto);
     chatChannel.members.push(hostId);
     await chatChannel.save();
 
+    // finded server will add this's new channel to list
     const newChatChannelList = [chatChannel._id].concat(server.chatChannels);
-    return this.serversService.updateFromChannel(serverId, {
+    return this.serversService.updateChannelList(serverId, {
       chatChannels: newChatChannelList,
     });
   }
 
-  // async findAll(): Promise<any> {
-  //   const chat_channels = await this.chatChannelModel
-  //     .find()
-  //     .lean()
-  //     .populate('members', ['_uid', 'name', 'avatar'])
-  //     .populate('messages')
-  //     .exec();
+  // GET ONE, WITH AUTHENTIC MEMBERS | HOST
+  async getWithMemberId(_id: string, requestorId: string) {
+    const chatChannel = await this.chatChannelModel.findById(_id).lean().exec();
 
-  //   return chat_channels;
-  // }
+    if (!chatChannel) {
+      throw new HttpException(`ChatChannel with id: ${_id} not found`, 404);
+    }
 
-  // async findOne(id: string) {
-  //   const chat_channel = await this.chatChannelModel
-  //     .findOne({ id })
-  //     .lean()
-  //     .populate('members', ['_uid', 'name', 'avatar'])
-  //     .populate('messages')
-  //     .exec();
+    const isMember = chatChannel.members.some(
+      (member) => member.toString() === requestorId,
+    );
 
-  //   return chat_channel;
-  // }
+    if (isMember) {
+      const chatChannel = await this.chatChannelModel
+        .findById({ _id })
+        .lean()
+        .populate('members', [
+          '_id',
+          '_uid',
+          'avatar',
+          'wallpaper',
+          'bio',
+          'createAt',
+          'status',
+        ])
+        .populate({ path: 'messages', populate: 'ownerId' })
+        .exec();
 
-  // async update(id: string, updateChatChannelDto: UpdateChatChannelDto) {
-  //   const cc = this.chatChannelModel.findOne({ _id: id }).lean().exec();
+      if (!chatChannel) {
+        return null;
+      }
+      return chatChannel;
+    }
+    return null;
+  }
 
-  //   // add new member to group chat
-  //   if (updateChatChannelDto.members) {
-  //     updateChatChannelDto.members = updateChatChannelDto.members.concat(
-  //       (await cc).members,
-  //     );
-  //   }
+  async findOne(_id: string) {
+    return this.chatChannelModel.findById(_id).lean().exec();
+  }
 
-  //   // add new message
-  //   if (updateChatChannelDto.messages) {
-  //     updateChatChannelDto.messages = updateChatChannelDto.messages.concat(
-  //       (await cc).messages,
-  //     );
-  //   }
+  // ADD A NEW USER TO MEMBER LIST
+  // - need to check the members are not duplicated
+  //      + check when adding member to member list
+  async updateMemberList(_id: string, userId: string) {
+    const chatChannel = await this.chatChannelModel.findById(_id).lean().exec();
+    const user = await this.usersService.findByObjID(userId);
 
-  //   return this.chatChannelModel
-  //     .findOneAndUpdate({ _id: id }, updateChatChannelDto)
-  //     .lean();
-  // }
-
-  async update(
-    _id: string,
-    hostId: string,
-    updateChatChannelDto: UpdateChatChannelDto,
-  ) {
-    const channel = await this.chatChannelModel.findOne({ _id, hostId }).lean();
-
-    if (!channel) {
+    if (!chatChannel || !user) {
       return null;
     }
 
-    if (updateChatChannelDto.members) {
-      let newFriends = updateChatChannelDto.members.concat(channel.members);
-      const tmp = [];
-      newFriends = newFriends.reduce((friendListNotDuplicate, element) => {
-        if (!tmp.includes(element.toString())) {
-          friendListNotDuplicate.push(element);
-          tmp.push(element.toString());
-        }
-        return friendListNotDuplicate;
-      }, []);
+    // add this user to server's member list
+    let newMembers = [userId].concat(chatChannel.members);
+    const tmp = [];
+    newMembers = newMembers.reduce((memberListNotDuplicate, element) => {
+      if (!tmp.includes(element.toString())) {
+        memberListNotDuplicate.push(element);
+        tmp.push(element.toString());
+      }
+      return memberListNotDuplicate;
+    }, []);
+    return this.chatChannelModel.updateOne({ _id }, { members: newMembers });
+  }
 
-      updateChatChannelDto.members = newFriends;
-    }
-
-    return this.chatChannelModel.updateOne(
-      { _id, hostId },
-      updateChatChannelDto,
-    );
+  // ADD A NEW USER TO MEMBER LIST
+  // no need to check the members are not duplicated,
+  // because this function called when creating a new message
+  async updateMessageList(
+    _id: string,
+    updateChatChannelDto: UpdateChatChannelDto,
+  ) {
+    return this.chatChannelModel.updateOne({ _id }, updateChatChannelDto);
   }
 
   async remove(_id: string, hostId: string) {

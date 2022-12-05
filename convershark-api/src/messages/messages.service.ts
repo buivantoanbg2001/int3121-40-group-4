@@ -1,92 +1,86 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Message, MessageDocument } from 'src/schemas/messages.schema';
-import { User } from 'src/schemas/user.schema';
-import { CreateMessageDto } from './dto/create-message.dto';
-import { UpdateMessageDto } from './dto/update-message.dto';
+import { ChatChannelsService } from 'src/chat_channels/chat_channels.service';
+import { CreateMessageDto, UpdateMessageDto } from './dto';
+import { Message, MessageDocument } from './schemas';
 
 @Injectable()
 export class MessagesService {
   constructor(
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
+    private chatChannelsService: ChatChannelsService,
   ) {}
 
-  private time = new Date();
-
   async create(createMessageDto: CreateMessageDto) {
-    // get current miliseconds time and set to create_at
-    const message = new this.messageModel(createMessageDto);
+    // confirm found chat channel
+    const { chatChannelId } = createMessageDto;
+
+    const chatChannel = await this.chatChannelsService.findOne(chatChannelId);
+
+    if (!chatChannel) {
+      return null;
+    }
+
+    // create new message
+    const message = await this.messageModel.create(createMessageDto);
+    // add and update list message of chat channel
+    const newChatList = [message._id].concat(chatChannel.messages);
+    this.chatChannelsService.updateMessageList(chatChannelId, {
+      messages: newChatList,
+    });
 
     return message.save();
   }
 
-  async findAll() {
-    const messages = await this.messageModel
-      .find()
-      .lean()
-      .populate('ownerId', ['_uid', 'name', 'avatar'])
-      .populate('replyMessageId', ['_id', 'content'])
-      .exec();
-
-    return messages;
-  }
-
   async findOneByObjID(id: string) {
-    const message = await (
-      await (
-        await this.messageModel.findOne({ _id: id })
-      ).populate('ownerId', ['_uid', 'name', 'avatar'])
-    ).populate('replyMessageId', ['_id', 'content']);
-
-    // If content is null, return null
-    if (!message) {
-      throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error: 'Lỗi tin nhắn',
-        },
-        HttpStatus.FORBIDDEN,
-      );
+    try {
+      const message = await this.messageModel
+        .findOne({ _id: id })
+        .populate('ownerId', ['_uid', 'name', 'avatar'])
+        .populate('replyMessageId', ['_id', 'content']);
+      return message;
+    } catch (err) {
+      if (err.code == 404) {
+        throw new ForbiddenException('Message not found');
+      }
+      throw new HttpException('Something went wrong', err);
     }
-    return message;
   }
 
+  // OWNER UPDATE MESSAGE
   async update(
     mesId: string,
     ownerId: string,
     updateMessageDto: UpdateMessageDto,
   ) {
-    const message = await this.messageModel.findOneAndUpdate(
-      { _id: mesId, ownerId: ownerId },
-      updateMessageDto,
-    );
-    if (!message) {
-      throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error: 'Lỗi tin nhắn',
-        },
-        HttpStatus.FORBIDDEN,
+    try {
+      const message = await this.messageModel.findOneAndUpdate(
+        { _id: mesId, ownerId: ownerId },
+        updateMessageDto,
       );
+
+      return message;
+    } catch (err) {
+      throw new HttpException('Something went wrong', err);
     }
-    return message;
   }
 
+  // OWNER DELETE A MESSAGE BY ID
   async remove(mesId: string, _ownerId: string) {
-    const message = await this.messageModel
-      .deleteOne({ _id: mesId, ownerId: _ownerId })
-      .exec();
+    try {
+      const message = await this.messageModel
+        .deleteOne({ _id: mesId, ownerId: _ownerId })
+        .exec();
 
-    if (!message) {
-      throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error: 'Lỗi tin nhắn',
-        },
-        HttpStatus.FORBIDDEN,
-      );
+      return message;
+    } catch (err) {
+      throw new HttpException('Something went wrong', err);
     }
-    return message;
   }
 }
