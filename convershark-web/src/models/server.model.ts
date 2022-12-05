@@ -1,10 +1,11 @@
-import { IShortChannel } from 'models/channel.model';
-import { IUser } from 'models/user.model';
+import { ICallChannel, IChatChannel } from 'models/channel.model';
 
 export interface IServer {
-  id: string;
+  _id: string;
+  hostId: string;
   name: string;
-  bannerProfile: string;
-  members: IUser[];
-  channels: IShortChannel[];
+  wallpaper: string;
+  chatChannels: IChatChannel[];
+  callChannels: ICallChannel[];
+  createdAt: string;
 }

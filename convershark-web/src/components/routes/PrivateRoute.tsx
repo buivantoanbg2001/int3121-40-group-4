@@ -17,7 +17,7 @@ const PrivateRoute: React.FC<RouteProps> = props => {
       extra={
         <Button
           type="primary"
-          onClick={() => navigate(`/login${'?from=' + encodeURIComponent(location.pathname)}`, { replace: true })}
+          onClick={() => navigate(`/${'?from=' + encodeURIComponent(location.pathname)}`, { replace: true })}
         >
           Đi đến Đăng nhập
         </Button>

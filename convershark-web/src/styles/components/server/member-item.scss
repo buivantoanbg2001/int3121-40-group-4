@@ -1,0 +1,13 @@
+.member-item-container {
+  .invite-button {
+    border-radius: 4px;
+    background-color: $button-bg;
+    border: none;
+    color: $text-color;
+    font-weight: 600;
+
+    &:hover {
+      background-color: $channel-list-item-background-hover-color;
+    }
+  }
+}

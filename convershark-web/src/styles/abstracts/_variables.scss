@@ -2,20 +2,25 @@
 $white-color: #fff;
 $black-color: #000;
 $error-color: #ff4d4f;
-$background-color: #fff;
+$background-color: #2f3136;
 $primary-color: #1890ff;
-$gradient-color-1: #8ec5fc;
-$gradient-color-2: #e0c3fc;
+$gradient-color-1: #000;
+$gradient-color-2: #6d6d6d;
 
-$server-menu-background-color: #e3e5e8;
-$channel-background-color: #f2f3f5;
+$text-color: #c1c2c6;
+
+$server-menu-background-color: #36393f;
+$channel-background-color: #2f3136;
 $title-color: #4b5563;
-$chat-input-background-color: #ebedef;
-$icon-color: #4f5660;
+$chat-input-background-color: #40444b;
+$icon-color: #afb4bb;
+$icon-color-hover: #737984;
 $secondary-text-color: #4f5660;
-$menu-item-background-color: #6599ff;
-$channel-list-item-background-hover-color: #dadee2;
+$menu-item-background-color: #5865f2;
+$channel-list-item-background-hover-color: #737984;
 $channel-list-item-background-selected-color: $menu-item-background-color;
+$modal-bg: #e8e8e8;
+$button-bg: #36393f;
 
 $box-shadow: #88a3bf3d 2px 4px 16px 0px, #88a3bf3d -2px 4px 16px 0px;
 $border-solid: 1px solid #88a3bf3d;

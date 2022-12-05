@@ -18,6 +18,11 @@
   align-items: center !important;
   justify-content: center !important;
   border-radius: 50%;
+  transition: all 0.3s ease !important;
+
+  &:hover {
+    scale: 1.1 !important;
+  }
 }
 
 .ant-menu-item::after {
@@ -28,6 +33,10 @@
   display: none !important;
 }
 
+.ant-menu-inline {
+  border-right: none;
+}
+
 .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
   background-color: $menu-item-background-color !important;
   border-radius: 50%;
@@ -35,5 +44,53 @@
 
 .ant-divider {
   margin: 8px 0 !important;
-  border-top-color: #00000026 !important;
+  border-top-color: #ffffff26 !important;
+}
+
+.ant-divider-inner-text {
+  color: #c1c2c6 !important;
+}
+
+.ant-modal-content {
+  background-color: $modal-bg;
+
+  .ant-modal-header {
+    background-color: $modal-bg;
+
+    .ant-modal-title {
+      font-weight: 700;
+    }
+  }
+}
+
+.ant-tabs-tab {
+  background-color: $modal-bg !important;
+
+  * {
+    color: $secondary-text-color !important;
+  }
+
+  &.ant-tabs-tab-active {
+    * {
+      color: $black-color !important;
+    }
+  }
+}
+
+.ant-tabs-ink-bar {
+  background-color: $background-color !important;
+}
+
+.ant-btn-primary {
+  background: $button-bg;
+  background-color: $button-bg;
+  border-color: $button-bg;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background: $channel-list-item-background-hover-color !important;
+    background-color: $channel-list-item-background-hover-color !important;
+    border-color: $channel-list-item-background-hover-color !important;
+  }
 }

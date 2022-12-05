@@ -8,18 +8,18 @@ const { Text } = Typography;
 type Props = { data: IMessage };
 
 const MessageItem = ({ data }: Props) => {
-  const { userId, content, createdAt, reply } = data;
+  const { content, ownerId: owner, createdAt } = data;
 
   return (
     <Row className="message-item-container" align={'top'}>
       <Col className="avatar">
-        <Avatar size={40}>A</Avatar>
+        <Avatar src={owner.avatar} size={40} />
       </Col>
 
       <Col className="content-container">
         <Row align={'bottom'}>
           <Col>
-            <Text strong>Toán Bùi Văn</Text>
+            <Text strong>{owner.name}</Text>
           </Col>
           <Col>
             <Text className="created-at">{format(parseJSON(createdAt), 'dd/MM/yyyy p')}</Text>

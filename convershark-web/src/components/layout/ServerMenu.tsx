@@ -1,27 +1,37 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Avatar, Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MenuInfo } from 'rc-menu/lib/interface';
-
-const menuList = [
-  {
-    key: '/channel/54bh64hjb6j56565j34tr3',
-    icon: <Avatar size={42}>A</Avatar>,
-  },
-  {
-    key: '/channel/782734vgv4h3545hgvgv5g',
-    icon: <Avatar size={42}>B</Avatar>,
-  },
-  {
-    key: '/channel/87546vghv65hg6vg7jg3g4',
-    icon: <Avatar size={42}>C</Avatar>,
-  },
-];
+import { useSelector, useDispatch } from 'react-redux';
+import { setMyInfo, userValue } from 'slices/userSlice';
+import UserApi from 'helpers/api/UserApi';
+import { getAvatar } from 'helpers/fakeAvatar';
+import { IUser } from 'models/user.model';
+import { IServer } from 'models/server.model';
 
 const ServerMenu: React.FC = props => {
   const navigate = useNavigate();
+  const userData = useSelector(userValue);
   let location = useLocation();
+  const dispatch = useDispatch();
   const [current, setCurrent] = useState(location.pathname.replace(/\/+$/, ''));
+  const menuList = userData.user?.servers.map((item, index) => ({
+    key: `/channels/${item._id}`,
+    icon: <Avatar src={item.wallpaper} size={42} />,
+  }));
+
+  useEffect(() => {
+    UserApi.getMyInfo().then(res => {
+      const user: IUser = res.data;
+      const serverData = user.servers.map((item, index) => ({
+        ...item,
+        wallpaper: getAvatar(index),
+        chatChannels: item.chatChannels.map(i => ({ ...i, type: 'chat' })),
+        callChannels: item.callChannels.map(i => ({ ...i, type: 'call' })),
+      }));
+      dispatch(setMyInfo({ ...user, servers: serverData as IServer[] }));
+    });
+  }, []);
 
   useEffect(() => {
     var tmpPath = location.pathname.replace(/\/+$/, '');

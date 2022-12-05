@@ -11,6 +11,7 @@
 
     .channel-icon {
       margin: 0 8px -7px 0;
+      color: $text-color;
     }
 
     .channel-name {
@@ -18,6 +19,20 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+
+      .channel-name-content {
+        color: $text-color;
+      }
+    }
+
+    .add-member {
+      color: $icon-color;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: $icon-color-hover;
+      }
     }
   }
 
@@ -48,6 +63,10 @@
       background-color: $chat-input-background-color;
       height: 42px;
       border-radius: 8px;
+
+      input {
+        color: $white-color;
+      }
 
       .send-icon {
         color: $icon-color;

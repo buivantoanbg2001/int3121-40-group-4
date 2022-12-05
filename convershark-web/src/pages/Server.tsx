@@ -1,55 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { Col, Row, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Button, Col, message, Modal, Row, Typography } from 'antd';
 import { useParams } from 'react-router-dom';
-import { IServer } from 'models/server.model';
 import ChannelListItem from 'components/server/ChannelListItem';
 import ChannelDetail from 'components/server/ChannelDetail';
+import { useSelector } from 'react-redux';
+import { userValue } from 'slices/userSlice';
+import MemberItem from 'components/server/MemberItem';
+import NotificationApi from 'helpers/api/NotificationApi';
 
 const { Text } = Typography;
 
 type Props = {};
 
-const fakeData: IServer = {
-  id: 'dgdfg545vghvhg6',
-  name: 'Our Community',
-  bannerProfile:
-    'https://helpx.adobe.com/content/dam/help/en/photoshop/using/convert-color-image-black-white/jcr_content/main-pars/before_and_after/image-before/Landscape-Color.jpg',
-  members: [],
-  channels: [
-    {
-      id: '123h453j45kl2',
-      name: 'chào-mừng',
-      type: 'chat',
-    },
-    {
-      id: '545hjh54gf544',
-      name: 'nội-quy',
-      type: 'chat',
-    },
-
-    {
-      id: '65gjy344d6hj5',
-      name: 'họp-team',
-      type: 'call',
-    },
-    {
-      id: 'dhus643gfh434',
-      name: 'chém-gió',
-      type: 'call',
-    },
-  ],
-};
-
 const Server: React.FC = (props: Props) => {
   const { serverId, channelId } = useParams();
-  const [server, setServer] = useState<IServer>();
+  const userData = useSelector(userValue);
+  const server = userData.user?.servers.find(i => i._id == serverId);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  useEffect(() => {
-    /**
-     * @TODO call api get server info by serverId, then setServer()
-     */
-    setServer(fakeData);
-  }, [serverId]);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const onInvite = (friendId: string) => {
+    NotificationApi.create({ serverId: serverId, receiver: friendId, type: 'SERVER' })
+      .then(res => message.success(res.data.payload.message, 3))
+      .catch(err => message.error('Gửi lời mời thất bại', 3));
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   if (!serverId || !server) return <></>;
 
@@ -60,12 +41,26 @@ const Server: React.FC = (props: Props) => {
           <Text className="server-name" strong>
             {server.name}
           </Text>
-          <img className="banner-profile" src={server.bannerProfile} />
+          <img className="banner-profile" src={server.wallpaper} />
         </Row>
 
-        {server.channels.map(item => (
-          <Row key={item.id}>
-            <ChannelListItem type={item.type} serverId={serverId} id={item.id} name={item.name} />
+        {userData.user?._id === server.hostId && (
+          <Row>
+            <Button className="full-width invite-server-member-button" type="primary" onClick={showModal}>
+              Thêm thành viên
+            </Button>
+          </Row>
+        )}
+
+        {server.chatChannels.map(item => (
+          <Row key={item._id}>
+            <ChannelListItem _id={item._id} serverId={serverId} type={item.type} name={item.name} />
+          </Row>
+        ))}
+
+        {server.callChannels.map(item => (
+          <Row key={item._id}>
+            <ChannelListItem _id={item._id} serverId={serverId} type={item.type} name={item.name} />
           </Row>
         ))}
       </Col>
@@ -73,6 +68,16 @@ const Server: React.FC = (props: Props) => {
       <Col className="channel-content-container">
         {channelId && <ChannelDetail id={channelId} serverId={serverId} />}
       </Col>
+
+      <Modal title="Mời bạn bè" open={isModalOpen} onCancel={handleCancel} footer={null}>
+        <Row gutter={[0, 12]}>
+          {userData.user?.friends.map(item => (
+            <Col span={24}>
+              <MemberItem key={item._id} data={item} onInvite={onInvite} />
+            </Col>
+          ))}
+        </Row>
+      </Modal>
     </Row>
   );
 };

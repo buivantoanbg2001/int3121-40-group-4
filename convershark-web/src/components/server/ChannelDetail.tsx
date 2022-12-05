@@ -1,57 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Col, Divider, Input, Row, Typography } from 'antd';
+import { Col, Divider, Input, Modal, Row, Typography, message } from 'antd';
 import { ICallChannel, IChatChannel } from 'models/channel.model';
 import { BiHash, BiVolumeFull, BiSend } from 'react-icons/bi';
-import { useNavigate } from 'react-router-dom';
+import { BsFillPersonPlusFill } from 'react-icons/bs';
 import MessageItem from 'components/server/MessageItem';
 import * as _ from 'lodash';
 import { format, parse } from 'date-fns';
+import ChatChannelApi from 'helpers/api/ChannelApi';
+import { useSelector } from 'react-redux';
+import { userValue } from 'slices/userSlice';
+import MessageApi from 'helpers/api/MessageApi';
+import MemberItem from 'components/server/MemberItem';
+import NotificationApi from 'helpers/api/NotificationApi';
 
 const { Text } = Typography;
-
-const fakeChatData: IChatChannel = {
-  id: '123h453j45kl2',
-  name: 'chào-mừng',
-  type: 'chat',
-  members: [],
-  messages: [
-    {
-      id: '43g54gf23hjj5',
-      userId: '65fdgfdyg3y47',
-      content: 'Hello!',
-      createdAt: '2022-11-18T15:30:23Z',
-      updatedAt: '2022-11-20T12:30:23Z',
-    },
-    {
-      id: '43g54gf54hjj5',
-      userId: '65fdgfdyg3y47',
-      content: 'Hi',
-      createdAt: '2022-11-19T13:30:23Z',
-      updatedAt: '2022-11-20T13:30:23Z',
-    },
-    {
-      id: '43g54gf54hjj5sd',
-      userId: '65fdgfdyg3y47',
-      content: 'Hi hi',
-      createdAt: '2022-11-19T15:30:23Z',
-      updatedAt: '2022-11-20T13:30:23Z',
-    },
-    {
-      id: '43g54gf23hgj5',
-      userId: '65fdgfdyg3y47',
-      content: 'Laborum laborum sint consectetur ex adipisicing. Anim nostrud amet exercitation cillum.',
-      createdAt: '2022-11-20T14:30:23Z',
-      updatedAt: '2022-11-20T14:30:23Z',
-    },
-  ],
-};
-
-const fakeCallData: ICallChannel = {
-  id: '123h45345kl2',
-  name: 'họp-team',
-  type: 'call',
-  members: [],
-};
 
 type Props = {
   id: string;
@@ -59,28 +21,40 @@ type Props = {
 };
 
 const ChannelDetail = ({ id, serverId }: Props) => {
-  const navigate = useNavigate();
-
+  const userData = useSelector(userValue);
   const [channel, setChannel] = useState<IChatChannel | ICallChannel>();
-  const [message, setMessage] = useState<string>();
+  const [messageInput, setMessageInput] = useState<string>();
+  const currentServer = userData.user?.servers.find(i => i._id === serverId);
+  const typeChannel = currentServer?.callChannels.find(i => i._id === id)
+    ? currentServer?.callChannels.find(i => i._id === id)?.type
+    : currentServer?.chatChannels.find(i => i._id === id)?.type;
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    /**
-     * @TODO call api get channel info by serverId & channelId, then check type of channel, if type === "chat",  setChatChannel()
-     */
-    if (Math.random() >= 0.5) {
-      setChannel(fakeChatData);
-    } else {
-      setChannel(fakeCallData);
+    if (typeChannel === 'chat') {
+      ChatChannelApi.getChatChannel(id).then(res => {
+        setChannel({ ...res.data, type: typeChannel });
+      });
     }
   }, [id, serverId]);
 
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const onInvite = (friendId: string) => {
+    NotificationApi.create({ chatId: id, receiver: friendId, type: 'CHAT' })
+      .then(res => message.success(res.data.payload.message, 3))
+      .catch(err => message.error('Gửi lời mời thất bại', 3));
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
   const handleSendMessage = () => {
-    /**
-     * @TODO handle send message if it is not empty
-     */
-    if (message) {
-      console.log('message', message);
+    if (messageInput) {
+      MessageApi.send(id, messageInput).then(res => setMessageInput(''));
     }
   };
 
@@ -104,6 +78,10 @@ const ChannelDetail = ({ id, serverId }: Props) => {
             {channel.name}
           </Text>
         </Col>
+
+        {userData.user?._id === channel.hostId && (
+          <BsFillPersonPlusFill size={24} className="add-member" onClick={showModal} />
+        )}
       </Row>
 
       {channel.type === 'chat' && (
@@ -123,7 +101,7 @@ const ChannelDetail = ({ id, serverId }: Props) => {
                     </Divider>
 
                     {groupMessages.map(({ createdAtDate, ...item }) => (
-                      <Row key={item.id}>
+                      <Row key={item._id}>
                         <MessageItem data={item} />
                       </Row>
                     ))}
@@ -139,13 +117,23 @@ const ChannelDetail = ({ id, serverId }: Props) => {
               placeholder={`Trò chuyện cùng #${channel.name}`}
               suffix={<BiSend size={24} className="send-icon" onClick={handleSendMessage} />}
               bordered={false}
-              value={message}
-              onChange={e => setMessage(e.target.value)}
+              value={messageInput}
+              onChange={e => setMessageInput(e.target.value)}
               onPressEnter={handleSendMessage}
             />
           </Row>
         </>
       )}
+
+      <Modal title="Mời bạn bè" open={isModalOpen} onCancel={handleCancel} footer={null}>
+        <Row gutter={[0, 12]}>
+          {userData.user?.friends.map(item => (
+            <Col span={24}>
+              <MemberItem key={item._id} data={item} onInvite={onInvite} />
+            </Col>
+          ))}
+        </Row>
+      </Modal>
     </Col>
   );
 };

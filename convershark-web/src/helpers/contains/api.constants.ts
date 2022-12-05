@@ -6,4 +6,11 @@ export const AxiosClientConfig = {
   CONTENT_TYPE: 'application/json',
 };
 
-export const API = {};
+export const API = {
+  LOGIN: '/login',
+  USERS: '/users',
+  USERS_ME: '/users/me/management',
+  CHAT_CHANNELS: '/chat-channels',
+  MESSAGES: '/messages',
+  NOTIFICATIONS: '/notifications',
+};

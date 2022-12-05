@@ -36,8 +36,16 @@
           height: 100%;
           width: 100%;
           object-fit: contain;
-          background-color: $background-color;
-          border-radius: 25%;
+          background-color: $white-color;
+          border-radius: 40%;
+          transition: all 0.3s ease;
+        }
+
+        &:hover {
+          img {
+            scale: 1.1;
+            background-color: $menu-item-background-color;
+          }
         }
       }
     }

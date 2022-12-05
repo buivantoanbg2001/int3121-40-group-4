@@ -10,6 +10,20 @@
       margin-bottom: 16px;
     }
 
+    .invite-server-member-button {
+      margin: 4px 8px 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background-color: $button-bg;
+      border: none;
+      color: $text-color;
+      font-weight: 600;
+
+      &:hover {
+        background-color: $channel-list-item-background-hover-color;
+      }
+    }
+
     .server-name {
       position: absolute;
       width: 100%;
@@ -29,5 +43,6 @@
   .channel-content-container {
     flex: 1;
     height: 100%;
+    background-color: #36393f;
   }
 }

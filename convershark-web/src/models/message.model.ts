@@ -1,8 +1,13 @@
+interface IMessageOwner {
+  _id: string;
+  name: string;
+  avatar: string;
+}
+
 export interface IMessage {
-  id: string;
-  userId: string;
+  _id: string;
+  ownerId: IMessageOwner;
   content: string;
   createdAt: string;
   updatedAt: string;
-  reply?: string;
 }

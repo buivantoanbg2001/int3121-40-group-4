@@ -1,15 +1,17 @@
+import { IMember } from 'models/member.model';
 import { IMessage } from 'models/message.model';
-import { IUser } from 'models/user.model';
+
+interface IChannelMember {}
 
 interface IChannel {
-  id: string;
+  _id: string;
+  hostId: string;
   name: string;
-  members: IUser[];
+  members: IMember[];
+  createdAt: string;
 }
 
-export interface IShortChannel {
-  id: string;
-  name: string;
+export interface IShortChannel extends IChannel {
   type: 'chat' | 'call';
 }
 

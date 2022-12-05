@@ -12,20 +12,6 @@
     background-color: $channel-list-item-background-hover-color;
   }
 
-  &.channel-list-item-container-selected {
-    background-color: $channel-list-item-background-selected-color;
-
-    .channel-icon,
-    .channel-name-content {
-      color: $white-color;
-    }
-  }
-
-  .channel-icon {
-    margin: 0 8px -7px 0;
-    transition: all 0.3s ease;
-  }
-
   .channel-name {
     flex: 1;
     white-space: nowrap;
@@ -34,6 +20,22 @@
 
     .channel-name-content {
       transition: all 0.3s ease;
+      color: $text-color;
     }
+  }
+
+  &.channel-list-item-container-selected {
+    background-color: $channel-list-item-background-selected-color;
+
+    .channel-icon,
+    .channel-name-content {
+      color: $black-color;
+    }
+  }
+
+  .channel-icon {
+    margin: 0 8px -7px 0;
+    color: $text-color;
+    transition: all 0.3s ease;
   }
 }

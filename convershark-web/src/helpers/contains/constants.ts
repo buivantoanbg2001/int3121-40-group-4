@@ -1,2 +1,2 @@
 export const LOGO_URL =
-  'https://user-images.githubusercontent.com/62609188/203345422-1a7607bf-2082-47e9-ada6-9661a6319581.png';
+  'https://user-images.githubusercontent.com/62609188/205596679-e7a0d8e4-3f3d-4167-a424-1cdd51512675.png';
