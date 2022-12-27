@@ -527,6 +527,69 @@ class _ChannelScreenState extends State<ChannelScreen> {
                                         ],
                                       ),
                                     ),
+                                    Theme(
+                                      data: ThemeData().copyWith(
+                                          dividerColor: Colors.transparent),
+                                      child: ExpansionTile(
+                                        backgroundColor: channelBackgroundColor,
+                                        title: GroupChannelTitleWidget(
+                                            isExpand: isExpandCallChannel,
+                                            name: "KÊNH THOẠI"),
+                                        onExpansionChanged: (value) {
+                                          setState(() {
+                                            isExpandCallChannel = value;
+                                          });
+                                        },
+                                        initiallyExpanded: true,
+                                        tilePadding: const EdgeInsets.symmetric(
+                                            horizontal: 6),
+                                        trailing: GestureDetector(
+                                          onTap: isAuthorized
+                                              ? null
+                                              //  () =>
+                                              //     showBottomSheetCreateChatChannel(
+                                              //         context,
+                                              //         vm
+                                              //             .me
+                                              //             .servers[
+                                              //                 vm.selectedServer]
+                                              //             .id)
+                                              : null,
+                                          child: Icon(
+                                            Icons.add,
+                                            color: isAuthorized
+                                                ? channelIconColor
+                                                : Colors.transparent,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        controlAffinity:
+                                            ListTileControlAffinity.trailing,
+                                        children: <Widget>[
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            itemCount: vm
+                                                .me
+                                                .servers[vm.selectedServer]
+                                                .callChannels
+                                                .length,
+                                            scrollDirection: Axis.vertical,
+                                            itemBuilder: (context, index) {
+                                              return ChannelItemWidget(
+                                                index: index,
+                                                channel: vm
+                                                    .me
+                                                    .servers[vm.selectedServer]
+                                                    .callChannels[index],
+                                                type: ChannelItemType.callVideo,
+                                              );
+                                            },
+                                          )
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ],

@@ -1,11 +1,13 @@
+import 'package:convershark/models/call_channel.model.dart';
 import 'package:convershark/screens/call_screen.dart';
-import 'package:convershark/screens/channel_screen.dart';
 import 'package:convershark/helpers/constains/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class PrepareCallScreen extends StatefulWidget {
-  const PrepareCallScreen({Key? key}) : super(key: key);
+  final CallChannel channel;
+
+  const PrepareCallScreen({Key? key, required this.channel}) : super(key: key);
 
   @override
   State<PrepareCallScreen> createState() => _PrepareCallScreenState();
@@ -25,7 +27,7 @@ class _PrepareCallScreenState extends State<PrepareCallScreen> {
         elevation: 0.0,
         leading: ElevatedButton(
           onPressed: () {
-            Navigator.of(context).pop(ChannelScreenPageRoute());
+            Navigator.of(context).pop();
           },
           style: ElevatedButton.styleFrom(
               backgroundColor: kSigninBntColor, shape: const CircleBorder()),
@@ -145,7 +147,9 @@ class _PrepareCallScreenState extends State<PrepareCallScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const CallScreen()));
+                                  builder: (context) => CallScreen(
+                                        channel: widget.channel,
+                                      )));
                         },
                         style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
@@ -173,25 +177,6 @@ class _PrepareCallScreenState extends State<PrepareCallScreen> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class ChannelScreenPageRoute extends PageRouteBuilder {
-  ChannelScreenPageRoute()
-      : super(
-            pageBuilder: (BuildContext context, Animation<double> animation,
-                    Animation<double> secondaryAnimation) =>
-                const PrepareCallScreen());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return SlideTransition(
-      position:
-          Tween<Offset>(begin: const Offset(.0, .0), end: const Offset(0, 1))
-              .animate(controller!),
-      child: const ChannelScreen(),
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'package:convershark/models/chat_channel.model.dart';
 import 'package:convershark/helpers/constains/colors.dart';
 import 'package:convershark/screens/chat_screen.dart';
 import 'package:convershark/screens/prepare_call_screen.dart';
@@ -9,7 +8,7 @@ enum ChannelItemType { callVideo, chat }
 class ChannelItemWidget extends StatelessWidget {
   final int index;
   final ChannelItemType type;
-  final ChatChannelModel channel;
+  final dynamic channel;
 
   const ChannelItemWidget({
     Key? key,
@@ -33,7 +32,9 @@ class ChannelItemWidget extends StatelessWidget {
                 ? Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const PrepareCallScreen()),
+                        builder: (context) => PrepareCallScreen(
+                              channel: channel,
+                            )),
                   )
                 : Navigator.push(
                     context,
@@ -66,25 +67,6 @@ class ChannelItemWidget extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class PrepareCallScreenPageRoute extends PageRouteBuilder {
-  PrepareCallScreenPageRoute()
-      : super(
-            pageBuilder: (BuildContext context, Animation<double> animation,
-                    Animation<double> secondaryAnimation) =>
-                const PrepareCallScreen());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return SlideTransition(
-      position:
-          Tween<Offset>(begin: const Offset(0, 1), end: const Offset(.0, .0))
-              .animate(controller!),
-      child: const PrepareCallScreen(),
     );
   }
 }

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Avatar, Button, Col, Row, Typography } from 'antd';
+import { Avatar, Button, Col, message, Row, Typography } from 'antd';
 import { INotification } from 'models/notification.model';
 import NotificationApi from 'helpers/api/NotificationApi';
+import UserApi from 'helpers/api/UserApi';
+import ServerApi from 'helpers/api/ServerApi';
 
 const { Text } = Typography;
 
@@ -21,18 +23,28 @@ const NotificationItem = ({ data }: Props) => {
       NotificationApi.update(data._id, { isResponse: true, isAccept });
     }
 
-    switch (data.type) {
-      case 'FRIEND': {
-        break;
-      }
-      case 'SERVER': {
-        break;
-      }
-      case 'CHAT': {
-        break;
-      }
-      case 'CALL': {
-        break;
+    if (isAccept) {
+      switch (data.type) {
+        case 'FRIEND': {
+          UserApi.updateFriendBoth(data.sender._id)
+            .then(res => message.success(res.data.payload.message, 3))
+            .catch(err => message.error('Phản hồi yêu cầu kết bạn thất bại', 3));
+
+          break;
+        }
+        case 'SERVER': {
+          ServerApi.updateMember(data.serverId._id)
+            .then(res => message.success(res.data.payload.message, 3))
+            .catch(err => message.error('Phản hồi lời mời thất bại', 3));
+
+          break;
+        }
+        case 'CHAT': {
+          break;
+        }
+        case 'CALL': {
+          break;
+        }
       }
     }
   };
@@ -66,13 +78,13 @@ const NotificationItem = ({ data }: Props) => {
                 data.type == 'FRIEND'
                   ? 'gửi yêu cầu kết bạn.'
                   : data.type == 'SERVER'
-                  ? `gửi lời mời tham gia ${data.serverId.name}.`
+                  ? `gửi lời mời tham gia ${data.serverId?.name}.`
                   : data.type == 'CHAT'
-                  ? `gửi lời mời tham gia kênh chat #${data.chatId.name}.`
+                  ? `gửi lời mời tham gia kênh chat #${data.chatId?.name}.`
                   : data.type == 'CALL'
-                  ? `gửi lời mời tham gia kênh thoại #${data.callId.name}.`
+                  ? `gửi lời mời tham gia kênh thoại #${data.callId?.name}.`
                   : data.type == 'MESSAGE'
-                  ? `đề cập đến bạn trong kênh chat #${data.chatId.name}.`
+                  ? `đề cập đến bạn trong kênh chat #${data.chatId?.name}.`
                   : 'Không có nội dung.'
               }`}</Text>
             </Row>

@@ -23,14 +23,47 @@ const ServerMenu: React.FC = props => {
   useEffect(() => {
     UserApi.getMyInfo().then(res => {
       const user: IUser = res.data;
-      const serverData = user.servers.map((item, index) => ({
-        ...item,
-        wallpaper: getAvatar(index),
-        chatChannels: item.chatChannels.map(i => ({ ...i, type: 'chat' })),
-        callChannels: item.callChannels.map(i => ({ ...i, type: 'call' })),
-      }));
+      const serverData = user.servers
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+        .map((item, index) => ({
+          ...item,
+          wallpaper: getAvatar(index),
+          chatChannels: item.chatChannels
+            .filter((i: any) => (i.members as string[]).includes(userData.user?._id as string))
+            .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+            .map(i => ({ ...i, type: 'chat' })),
+          callChannels: item.callChannels
+            .filter((i: any) => (i.members as string[]).includes(userData.user?._id as string))
+            .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+            .map(i => ({ ...i, type: 'call' })),
+        }));
+
+      console.log('ABC', serverData);
       dispatch(setMyInfo({ ...user, servers: serverData as IServer[] }));
     });
+
+    // const interval = setInterval(() => {
+    //   UserApi.getMyInfo().then(res => {
+    //     const user: IUser = res.data;
+    //     const serverData = user.servers
+    //       .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    //       .map((item, index) => ({
+    //         ...item,
+    //         wallpaper: getAvatar(index),
+    //         chatChannels: item.chatChannels
+    //           .filter((i: any) => (i.members as string[]).includes(userData.user?._id as string))
+    //           .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    //           .map(i => ({ ...i, type: 'chat' })),
+    //         callChannels: item.callChannels
+    //           .filter((i: any) => (i.members as string[]).includes(userData.user?._id as string))
+    //           .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    //           .map(i => ({ ...i, type: 'call' })),
+    //       }));
+    //     dispatch(setMyInfo({ ...user, servers: serverData as IServer[] }));
+    //   });
+    // }, 5000);
+
+    // return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {

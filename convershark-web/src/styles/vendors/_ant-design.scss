@@ -82,13 +82,15 @@
 }
 
 .ant-btn-primary {
-  background: $button-bg;
-  background-color: $button-bg;
-  border-color: $button-bg;
+  &,
+  &:active,
+  &:focus {
+    background: $button-bg;
+    background-color: $button-bg;
+    border-color: $button-bg;
+  }
 
-  &:hover,
-  &:focus,
-  &:active {
+  &:hover {
     background: $channel-list-item-background-hover-color !important;
     background-color: $channel-list-item-background-hover-color !important;
     border-color: $channel-list-item-background-hover-color !important;

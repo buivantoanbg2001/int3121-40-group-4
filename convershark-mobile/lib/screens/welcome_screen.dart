@@ -18,7 +18,7 @@ class WelcomeScreen extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: Image.asset(
-                  "assets/images/welcome_screen_background.jpg",
+                  "assets/images/logo_app.png",
                   fit: BoxFit.contain,
                 ),
               ),

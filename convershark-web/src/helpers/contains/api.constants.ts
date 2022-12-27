@@ -10,7 +10,9 @@ export const API = {
   LOGIN: '/login',
   USERS: '/users',
   USERS_ME: '/users/me/management',
+  USERS_UPDATE_FRIEND_BOTH: '/users/friends/update-both',
   CHAT_CHANNELS: '/chat-channels',
   MESSAGES: '/messages',
   NOTIFICATIONS: '/notifications',
+  SERVERS: '/servers',
 };

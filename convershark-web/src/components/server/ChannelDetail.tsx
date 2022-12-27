@@ -31,11 +31,33 @@ const ChannelDetail = ({ id, serverId }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
+    let interval: NodeJS.Timeout;
+
     if (typeChannel === 'chat') {
+      // interval = setInterval(() => {
+      //   ChatChannelApi.getChatChannel(id).then(res => {
+      //     setChannel({
+      //       ...res.data,
+      //       type: typeChannel,
+      //       messages: res.data.messages.sort(
+      //         (a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      //       ),
+      //     });
+      //   });
+      // }, 1000);
+
       ChatChannelApi.getChatChannel(id).then(res => {
-        setChannel({ ...res.data, type: typeChannel });
+        setChannel({
+          ...res.data,
+          messages: res.data.messages.sort(
+            (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          ),
+          type: typeChannel,
+        });
       });
     }
+
+    return () => clearInterval(interval);
   }, [id, serverId]);
 
   const showModal = () => {
@@ -88,26 +110,27 @@ const ChannelDetail = ({ id, serverId }: Props) => {
         <>
           <Row className="message-container">
             <Col span={24} className="message-wrapper">
-              {Object.entries(
-                _.groupBy(
-                  channel.messages.map(item => ({ ...item, createdAtDate: item.createdAt.slice(0, 10) })),
-                  'createdAtDate',
-                ),
-              ).map(([keyDate, groupMessages]) => {
-                return (
-                  <div key={keyDate}>
-                    <Divider className="date-divider">
-                      {format(parse(keyDate, 'yyyy-MM-dd', new Date()), 'LLLL dd, yyyy')}
-                    </Divider>
+              {channel.messages != undefined &&
+                Object.entries(
+                  _.groupBy(
+                    channel.messages.map(item => ({ ...item, createdAtDate: item.createdAt.slice(0, 10) })),
+                    'createdAtDate',
+                  ),
+                ).map(([keyDate, groupMessages]) => {
+                  return (
+                    <div key={keyDate}>
+                      <Divider className="date-divider">
+                        {format(parse(keyDate, 'yyyy-MM-dd', new Date()), 'LLLL dd, yyyy')}
+                      </Divider>
 
-                    {groupMessages.map(({ createdAtDate, ...item }) => (
-                      <Row key={item._id}>
-                        <MessageItem data={item} />
-                      </Row>
-                    ))}
-                  </div>
-                );
-              })}
+                      {groupMessages.map(({ createdAtDate, ...item }) => (
+                        <Row key={item._id}>
+                          <MessageItem data={item} />
+                        </Row>
+                      ))}
+                    </div>
+                  );
+                })}
             </Col>
           </Row>
 
